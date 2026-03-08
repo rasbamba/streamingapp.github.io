@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiveBridge Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>LiveBridge Studio</h1>
+      <p>OBS → Multi-platform live control room</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Create Live Session</h2>
+        <form id="create-session-form">
+          <label for="session-name">Session name</label>
+          <input id="session-name" name="sessionName" placeholder="My Live Show" required />
+          <button type="submit">Create Session</button>
+        </form>
+      </section>
+
+      <section class="card" id="sessions-panel">
+        <h2>Sessions</h2>
+        <div id="sessions"></div>
+      </section>
+    </main>
+
+    <template id="session-template">
+      <article class="session-card">
+        <div class="session-header">
+          <h3 class="session-name"></h3>
+          <span class="status"></span>
+        </div>
+
+        <div class="ingest">
+          <p><strong>OBS RTMP URL:</strong> <code class="ingest-url"></code></p>
+          <p><strong>Stream Key:</strong> <code class="ingest-key"></code></p>
+        </div>
+
+        <div class="actions">
+          <button class="start">Go Live</button>
+          <button class="stop" disabled>Stop</button>
+        </div>
+
+        <form class="destination-form">
+          <h4>Add Destination</h4>
+          <input name="platform" placeholder="Platform (YouTube, Facebook, Twitch...)" required />
+          <input name="rtmpUrl" placeholder="rtmp://platform/live/stream_key" required />
+          <button type="submit">Add Destination</button>
+        </form>
+
+        <div class="destinations"></div>
+
+        <details>
+          <summary>Relay Logs</summary>
+          <pre class="logs"></pre>
+        </details>
+      </article>
+    </template>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "multi-platform-live-studio",
+  "version": "1.0.0",
+  "description": "OBS to multi-platform live streaming control room",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.3"
+  }
+}
