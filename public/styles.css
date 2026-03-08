@@ -1,0 +1,154 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+  background: #091426;
+  color: #e8efff;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: radial-gradient(circle at top, #11325e, #061020 55%);
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+}
+
+.card,
+.session-card {
+  background: rgba(10, 25, 45, 0.85);
+  border: 1px solid #34507a;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.session-card {
+  margin-bottom: 14px;
+}
+
+label,
+input,
+button {
+  display: block;
+  width: 100%;
+}
+
+input {
+  border: 1px solid #5279b4;
+  background: #061a34;
+  color: #e8efff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #0c1830;
+  background: #67b4ff;
+}
+
+button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.actions button {
+  flex: 1;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.status.live {
+  background: #d74444;
+}
+
+.status.stopped,
+.status.stopping {
+  background: #365a86;
+}
+
+.status.error {
+  background: #f2ad43;
+  color: #2f2300;
+}
+
+.destinations {
+  margin-top: 10px;
+}
+
+.destination-row {
+  border: 1px solid #365a86;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.destination-row small {
+  display: block;
+  opacity: 0.8;
+}
+
+.destination-row .dest-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.destination-row button {
+  font-size: 12px;
+  padding: 8px;
+}
+
+.logs {
+  max-height: 220px;
+  overflow: auto;
+  font-size: 12px;
+  background: #020913;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
