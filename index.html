@@ -1,0 +1,3212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StreamLive Studio — Professional Multistreaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   ROOT & RESET
+   ============================================ */
+:root {
+  --bg:       #06080f;
+  --bg1:      #090c14;
+  --bg2:      #0c1019;
+  --bg3:      #10141e;
+  --panel:    #141922;
+  --panel2:   #1a2030;
+  --panel3:   #1f2638;
+  --border:   #222a3a;
+  --border2:  #2a3448;
+  --border3:  #333f58;
+  --red:      #ff1f4b;
+  --red2:     #ff5252;
+  --orange:   #ff6b2b;
+  --blue:     #2979ff;
+  --blue2:    #5c9dff;
+  --blue3:    #90bcff;
+  --green:    #00e676;
+  --green2:   #69f0ae;
+  --yellow:   #ffd600;
+  --purple:   #b388ff;
+  --cyan:     #18ffff;
+  --text:     #dde3f0;
+  --text2:    #7a89a8;
+  --text3:    #404d66;
+  --text4:    #2a3347;
+  --live:     #ff1f4b;
+  --shadow:   0 20px 60px rgba(0,0,0,.7);
+  --glow-red: 0 0 30px rgba(255,31,75,.3);
+  --glow-blue:0 0 30px rgba(41,121,255,.3);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  user-select:none;
+}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+button{cursor:pointer;font-family:'Syne',sans-serif;}
+input,select,textarea{font-family:'Syne',sans-serif;}
+
+/* ============================================
+   TOP NAV BAR
+   ============================================ */
+#topbar{
+  height:52px;
+  background:var(--bg1);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  gap:0;
+  flex-shrink:0;
+  z-index:100;
+}
+.topbar-logo{
+  font-family:'Bebas Neue';
+  font-size:26px;
+  letter-spacing:3px;
+  background:linear-gradient(135deg,var(--red),var(--orange));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-right:20px;
+  flex-shrink:0;
+}
+.topbar-logo span{
+  -webkit-text-fill-color:var(--blue3);
+}
+.topbar-tabs{
+  display:flex;
+  height:100%;
+  gap:2px;
+  flex:1;
+}
+.tab-btn{
+  height:100%;
+  padding:0 16px;
+  background:transparent;
+  border:none;
+  color:var(--text2);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.3px;
+  position:relative;
+  transition:color .2s;
+}
+.tab-btn::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:2px;
+  background:var(--blue);
+  transform:scaleX(0);
+  transition:transform .2s;
+}
+.tab-btn.active{color:var(--text);}
+.tab-btn.active::after{transform:scaleX(1);}
+.tab-btn:hover{color:var(--text);}
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left:auto;
+  flex-shrink:0;
+}
+.stream-info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  height:34px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:12px;
+  font-family:'JetBrains Mono';
+}
+#topbar-timer{color:var(--text2);}
+#topbar-timer.live{color:var(--live);font-weight:600;}
+.pulse-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--text3);flex-shrink:0;
+}
+.pulse-dot.live{
+  background:var(--live);
+  animation:dot-pulse 1.2s ease infinite;
+}
+@keyframes dot-pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,31,75,.5);}
+  50%{opacity:.8;box-shadow:0 0 0 5px rgba(255,31,75,0);}
+}
+.viewer-chip{
+  display:flex;align-items:center;gap:5px;
+  padding:0 12px;height:34px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;font-size:12px;font-family:'JetBrains Mono';
+}
+#topbar-viewers{color:var(--text2);}
+.viewer-icon{font-size:12px;}
+.tbar-btn{
+  height:34px;padding:0 14px;
+  border-radius:8px;border:1px solid var(--border);
+  background:var(--panel);color:var(--text2);
+  font-size:12px;font-weight:700;
+  transition:all .2s;
+}
+.tbar-btn:hover{border-color:var(--border2);color:var(--text);}
+#go-live-btn{
+  height:36px;padding:0 20px;
+  border-radius:8px;border:none;
+  background:linear-gradient(135deg,var(--red),var(--red2));
+  color:#fff;font-size:13px;font-weight:800;
+  letter-spacing:.5px;
+  transition:all .2s;
+  display:flex;align-items:center;gap:7px;
+  box-shadow:0 4px 16px rgba(255,31,75,.25);
+}
+#go-live-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:var(--glow-red);
+}
+#go-live-btn.streaming{
+  background:linear-gradient(135deg,#1a0010,#250010);
+  border:1px solid rgba(255,31,75,.5);
+  color:var(--live);
+  box-shadow:none;
+}
+#go-live-btn .btn-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#fff;
+}
+#go-live-btn.streaming .btn-dot{
+  background:var(--live);
+  animation:dot-pulse 1.2s ease infinite;
+}
+
+/* ============================================
+   MAIN LAYOUT
+   ============================================ */
+#main{
+  flex:1;
+  display:grid;
+  grid-template-columns:220px 1fr 270px;
+  overflow:hidden;
+}
+
+/* ============================================
+   LEFT PANEL
+   ============================================ */
+#left-panel{
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.lpanel-section{
+  display:flex;
+  flex-direction:column;
+  border-bottom:1px solid var(--border);
+}
+.lpanel-header{
+  padding:9px 12px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--text3);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+.lp-add-btn{
+  width:22px;height:22px;
+  background:var(--panel3);
+  border:1px solid var(--border2);
+  border-radius:5px;color:var(--text2);
+  font-size:14px;display:flex;
+  align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.lp-add-btn:hover{border-color:var(--blue);color:var(--blue);}
+.lp-list{
+  overflow-y:auto;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  max-height:180px;
+}
+.lp-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 9px;
+  border-radius:7px;
+  background:transparent;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:all .15s;
+  flex-shrink:0;
+}
+.lp-item:hover{background:var(--panel);border-color:var(--border);}
+.lp-item.active{
+  background:rgba(41,121,255,.1);
+  border-color:rgba(41,121,255,.4);
+}
+.lp-item-icon{
+  width:28px;height:28px;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;
+}
+.lp-item-info{flex:1;min-width:0;}
+.lp-item-name{
+  font-size:12px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lp-item-sub{
+  font-size:10px;color:var(--text3);
+  font-family:'JetBrains Mono';
+  margin-top:1px;
+}
+.lp-status{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+/* Audio meters */
+#audio-section{padding:8px 12px 12px;}
+.audio-meter-row{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;
+}
+.audio-label{font-size:11px;color:var(--text2);width:54px;flex-shrink:0;font-family:'JetBrains Mono';}
+.audio-meter{
+  flex:1;height:8px;
+  background:var(--bg3);
+  border-radius:4px;overflow:hidden;
+  border:1px solid var(--border);
+}
+.audio-fill{
+  height:100%;
+  border-radius:4px;
+  background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));
+  transition:width .08s ease;
+}
+.audio-vol-btn{
+  width:24px;height:24px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:5px;color:var(--text2);
+  font-size:11px;
+  transition:all .2s;
+}
+.audio-vol-btn:hover{border-color:var(--border2);color:var(--text);}
+.audio-vol-btn.muted{color:var(--red);border-color:rgba(255,31,75,.3);}
+
+/* Scenes */
+.scenes-grid{
+  padding:6px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  overflow-y:auto;
+  max-height:200px;
+}
+.scene-tile{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px;
+  cursor:pointer;
+  transition:all .2s;
+  text-align:center;
+}
+.scene-tile:hover{border-color:var(--border2);}
+.scene-tile.active{
+  border-color:var(--blue);
+  background:rgba(41,121,255,.08);
+}
+.scene-tile-preview{
+  height:38px;
+  background:var(--bg2);
+  border-radius:5px;
+  margin-bottom:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.scene-tile-name{font-size:10px;color:var(--text2);font-weight:600;}
+.scene-tile.active .scene-tile-name{color:var(--blue3);}
+
+/* ============================================
+   CENTER — CANVAS AREA
+   ============================================ */
+#center{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:var(--bg);
+}
+/* Canvas */
+#canvas-wrap{
+  flex:1;
+  position:relative;
+  background:#000;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#canvas-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 70% at 50% 50%,#0a0f1e,#000);
+}
+#canvas-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(41,121,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(41,121,255,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+#main-video-container{
+  position:relative;
+  width:94%;
+  height:88%;
+  border:1px solid rgba(41,121,255,.2);
+  border-radius:8px;
+  overflow:hidden;
+  background:#000;
+  box-shadow:0 0 60px rgba(0,0,0,.8);
+}
+#main-video{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:none;
+  background:#000;
+}
+#canvas-placeholder{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:16px;
+}
+.cp-icon{font-size:56px;opacity:.2;}
+.cp-title{
+  font-family:'Bebas Neue';
+  font-size:32px;letter-spacing:3px;
+  color:var(--text3);
+}
+.cp-sub{font-size:13px;color:var(--text3);font-family:'JetBrains Mono';}
+.cp-actions{display:flex;gap:10px;margin-top:4px;}
+.cp-btn{
+  padding:9px 20px;border-radius:8px;
+  font-size:13px;font-weight:700;
+  border:none;transition:all .2s;
+}
+.cp-btn-primary{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+}
+.cp-btn-primary:hover{transform:translateY(-1px);box-shadow:var(--glow-blue);}
+.cp-btn-secondary{
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  color:var(--text2);
+}
+.cp-btn-secondary:hover{color:var(--text);border-color:var(--border3);}
+
+/* Overlays on canvas */
+#canvas-overlays{
+  position:absolute;inset:0;
+  pointer-events:none;
+}
+.canvas-overlay{
+  position:absolute;
+  pointer-events:all;
+  cursor:move;
+}
+.overlay-inner{
+  background:rgba(0,0,0,.78);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  padding:5px 12px;
+  font-size:13px;
+  color:#fff;
+  backdrop-filter:blur(4px);
+  display:flex;align-items:center;gap:6px;
+  white-space:nowrap;
+}
+.overlay-del{
+  background:rgba(255,31,75,.2);
+  border:none;
+  color:var(--red);
+  border-radius:4px;
+  width:18px;height:18px;
+  font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity .2s;
+}
+.canvas-overlay:hover .overlay-del{opacity:1;}
+.lower-third{
+  bottom:60px;left:20px;
+  right:20px;
+  cursor:default;
+}
+.lower-third .overlay-inner{
+  border-left:3px solid var(--blue);
+  border-radius:0 6px 6px 0;
+  font-size:14px;font-weight:700;
+}
+.ticker-bar{
+  bottom:0;left:0;right:0;
+  cursor:default;
+  width:100%;
+}
+.ticker-bar .overlay-inner{
+  border-radius:0;
+  border:none;
+  border-top:1px solid rgba(41,121,255,.3);
+  background:rgba(0,0,20,.9);
+  width:100%;
+  overflow:hidden;
+  padding:6px 0;
+}
+.ticker-text{
+  display:inline-block;
+  animation:ticker-scroll 25s linear infinite;
+  font-size:12px;font-family:'JetBrains Mono';
+  color:var(--blue3);
+  white-space:nowrap;
+  padding:0 20px;
+}
+@keyframes ticker-scroll{
+  0%{transform:translateX(100vw);}
+  100%{transform:translateX(-100%);}
+}
+/* Canvas frame labels */
+#canvas-quality-badge{
+  position:absolute;top:10px;left:10px;
+  background:rgba(0,0,0,.75);
+  border:1px solid rgba(41,121,255,.3);
+  border-radius:5px;
+  padding:3px 9px;
+  font-size:11px;font-family:'JetBrains Mono';
+  color:var(--blue3);
+}
+#canvas-live-badge{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,31,75,.9);
+  border-radius:5px;
+  padding:3px 10px;
+  font-size:11px;font-weight:800;
+  letter-spacing:.8px;
+  display:none;align-items:center;gap:5px;
+}
+#canvas-live-badge.show{display:flex;}
+#canvas-live-badge .badge-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#fff;animation:dot-pulse 1.2s ease infinite;
+}
+
+/* ============================================
+   BOTTOM TOOLBAR
+   ============================================ */
+#toolbar{
+  height:54px;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  gap:6px;
+  flex-shrink:0;
+}
+.tb-group{
+  display:flex;gap:4px;
+  padding-right:10px;
+  border-right:1px solid var(--border);
+}
+.tb-group:last-child{border:none;margin-left:auto;}
+.tb-btn{
+  width:36px;height:36px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg3);
+  color:var(--text2);
+  font-size:14px;
+  transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.tb-btn:hover{border-color:var(--border2);color:var(--text);background:var(--panel2);}
+.tb-btn.active{
+  background:rgba(255,31,75,.12);
+  border-color:rgba(255,31,75,.4);
+  color:var(--red);
+}
+.tb-btn.on{
+  background:rgba(41,121,255,.12);
+  border-color:rgba(41,121,255,.4);
+  color:var(--blue3);
+}
+.tb-tooltip{
+  position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);
+  background:var(--panel3);
+  border:1px solid var(--border2);
+  border-radius:5px;
+  padding:4px 9px;
+  font-size:11px;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  z-index:50;
+}
+.tb-btn:hover .tb-tooltip{opacity:1;}
+.tb-label{
+  font-size:11px;font-weight:700;
+  color:var(--text3);
+  padding:0 8px;
+  letter-spacing:.5px;
+}
+.trans-select{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text2);
+  border-radius:7px;
+  padding:6px 10px;
+  font-size:11px;
+  font-family:'JetBrains Mono';
+  outline:none;
+  cursor:pointer;
+}
+.trans-select:focus{border-color:var(--blue);}
+
+/* ============================================
+   BOTTOM: MULTIVIEW (scene preview row)
+   ============================================ */
+#multiview{
+  height:90px;
+  background:var(--bg1);
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  overflow-x:auto;
+  flex-shrink:0;
+}
+.mv-tile{
+  height:78px;
+  width:130px;
+  flex-shrink:0;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+  transition:all .2s;
+}
+.mv-tile:hover{border-color:var(--border2);}
+.mv-tile.active{border-color:var(--blue);}
+.mv-tile.live-tile{border-color:var(--live);}
+.mv-preview{
+  width:100%;height:calc(100% - 20px);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;background:#000;
+  overflow:hidden;position:relative;
+}
+.mv-preview video{
+  width:100%;height:100%;
+  object-fit:cover;
+}
+.mv-label{
+  height:20px;
+  background:var(--panel);
+  display:flex;align-items:center;
+  padding:0 6px;
+  font-size:10px;font-weight:700;
+  color:var(--text2);
+  letter-spacing:.3px;
+}
+.mv-tile.live-tile .mv-label{color:var(--live);}
+.mv-tile.active .mv-label{color:var(--blue3);}
+.mv-add{
+  background:transparent;
+  border:1px dashed var(--border2);
+  border-radius:8px;
+  width:60px;height:78px;
+  flex-shrink:0;
+  color:var(--text3);
+  font-size:20px;
+  transition:all .2s;
+}
+.mv-add:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ============================================
+   RIGHT PANEL — DESTINATIONS + CHAT
+   ============================================ */
+#right-panel{
+  background:var(--bg2);
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.rp-tabs{
+  display:flex;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.rp-tab{
+  flex:1;height:38px;
+  background:transparent;
+  border:none;
+  color:var(--text2);
+  font-size:12px;font-weight:700;
+  letter-spacing:.3px;
+  transition:all .2s;
+  border-bottom:2px solid transparent;
+  position:relative;
+}
+.rp-tab.active{color:var(--text);border-bottom-color:var(--blue);}
+.rp-tab:hover{color:var(--text);}
+.rp-tab .badge{
+  position:absolute;top:6px;right:12px;
+  background:var(--red);color:#fff;
+  border-radius:10px;padding:1px 5px;
+  font-size:9px;font-weight:800;
+  display:none;
+}
+.rp-tab .badge.show{display:block;}
+
+/* Destinations */
+#rp-destinations{
+  flex:1;overflow-y:auto;
+  padding:8px;
+  display:flex;flex-direction:column;gap:6px;
+}
+#rp-chat{
+  flex:1;overflow:hidden;
+  display:none;
+  flex-direction:column;
+}
+#rp-analytics{
+  flex:1;overflow-y:auto;
+  padding:10px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+}
+
+.dest-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px;
+  transition:all .2s;
+}
+.dest-card.connected{border-color:rgba(0,230,118,.2);}
+.dest-card.streaming{
+  border-color:rgba(255,31,75,.35);
+  background:rgba(255,31,75,.04);
+  animation:dest-pulse 3s ease infinite;
+}
+@keyframes dest-pulse{
+  0%,100%{box-shadow:none;}
+  50%{box-shadow:0 0 15px rgba(255,31,75,.15);}
+}
+.dest-top{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;
+}
+.dest-icon{
+  width:30px;height:30px;
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.dest-name{font-size:13px;font-weight:700;flex:1;}
+.dest-toggle-wrap{display:flex;align-items:center;gap:6px;}
+.dest-status-text{
+  font-size:10px;font-family:'JetBrains Mono';
+  color:var(--text3);
+}
+.dest-status-text.on{color:var(--green);}
+.dest-status-text.live{color:var(--live);}
+.toggle-switch{
+  width:38px;height:20px;
+  border-radius:10px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  cursor:pointer;
+  position:relative;
+  transition:all .25s;
+  flex-shrink:0;
+}
+.toggle-switch.on{
+  background:rgba(0,230,118,.15);
+  border-color:rgba(0,230,118,.5);
+}
+.toggle-switch::after{
+  content:'';
+  position:absolute;
+  top:2px;left:2px;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:var(--text3);
+  transition:all .25s;
+}
+.toggle-switch.on::after{left:20px;background:var(--green);}
+.dest-body{display:flex;flex-direction:column;gap:5px;}
+.dest-row{display:flex;align-items:center;gap:6px;}
+.dest-input{
+  flex:1;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:5px 9px;
+  font-size:11px;
+  font-family:'JetBrains Mono';
+  color:var(--text2);
+  outline:none;
+  transition:border-color .2s;
+}
+.dest-input:focus{border-color:var(--blue);}
+.dest-input::placeholder{color:var(--text4);}
+.dest-copy-btn{
+  width:28px;height:28px;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  color:var(--text2);
+  font-size:11px;
+  transition:all .2s;
+  flex-shrink:0;
+}
+.dest-copy-btn:hover{border-color:var(--blue);color:var(--blue2);}
+.dest-stats{
+  display:flex;gap:10px;
+  padding-top:3px;
+}
+.dest-stat{
+  font-size:10px;
+  font-family:'JetBrains Mono';
+  color:var(--text3);
+}
+.dest-stat span{color:var(--text2);}
+.add-dest-btn{
+  margin:4px;
+  background:transparent;
+  border:1px dashed rgba(41,121,255,.3);
+  border-radius:10px;
+  padding:10px;
+  color:var(--blue2);
+  font-size:12px;font-weight:700;
+  transition:all .2s;
+}
+.add-dest-btn:hover{
+  background:rgba(41,121,255,.06);
+  border-color:rgba(41,121,255,.5);
+}
+
+/* GO LIVE BAR */
+#go-live-bar{
+  padding:10px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+  display:flex;flex-direction:column;gap:8px;
+}
+.gl-row{display:flex;align-items:center;gap:8px;}
+#gl-timer{
+  font-family:'Bebas Neue';
+  font-size:26px;
+  letter-spacing:2px;
+  color:var(--text3);
+  transition:color .3s;
+}
+#gl-timer.live{color:var(--live);}
+#gl-active-count{
+  font-size:11px;font-family:'JetBrains Mono';
+  color:var(--text3);
+  flex:1;
+}
+#gl-main-btn{
+  width:100%;height:42px;
+  border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--red),#ff4444);
+  color:#fff;font-size:14px;font-weight:800;
+  letter-spacing:.5px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 6px 20px rgba(255,31,75,.25);
+}
+#gl-main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:var(--glow-red);
+}
+#gl-main-btn.streaming{
+  background:var(--bg3);
+  border:1px solid rgba(255,31,75,.4);
+  color:var(--live);
+  box-shadow:none;
+}
+#gl-main-btn .gl-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:#fff;
+}
+#gl-main-btn.streaming .gl-dot{
+  background:var(--live);
+  animation:dot-pulse 1.2s ease infinite;
+}
+
+/* Chat */
+#chat-messages{
+  flex:1;
+  overflow-y:auto;
+  padding:8px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.chat-msg{
+  display:flex;gap:6px;
+  font-size:12px;
+  line-height:1.5;
+  animation:chat-in .2s ease both;
+}
+@keyframes chat-in{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:none;}
+}
+.chat-platform{
+  font-size:9px;
+  border-radius:3px;
+  padding:1px 4px;
+  font-weight:800;
+  flex-shrink:0;
+  align-self:flex-start;
+  margin-top:2px;
+  letter-spacing:.3px;
+}
+.chat-user{font-weight:700;flex-shrink:0;}
+.chat-text{color:var(--text2);word-break:break-word;}
+.chat-input-area{
+  padding:8px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.chat-input-row{
+  display:flex;gap:5px;
+}
+#chat-input{
+  flex:1;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:7px 10px;
+  font-size:12px;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+}
+#chat-input:focus{border-color:var(--blue);}
+#chat-input::placeholder{color:var(--text3);}
+#chat-send-btn{
+  width:34px;height:34px;
+  background:var(--blue);
+  border:none;border-radius:7px;
+  color:#fff;font-size:14px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+#chat-send-btn:hover{background:var(--blue2);}
+.chat-filter-row{
+  display:flex;gap:4px;
+  margin-bottom:6px;
+  flex-wrap:wrap;
+}
+.cf-chip{
+  padding:3px 8px;
+  border-radius:5px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text3);
+  font-size:10px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.cf-chip.active{border-color:var(--blue2);color:var(--blue3);background:rgba(41,121,255,.1);}
+
+/* Analytics */
+.analytics-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+}
+.analytics-title{
+  font-size:10px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:10px;
+}
+.analytics-big{
+  font-family:'Bebas Neue';
+  font-size:36px;letter-spacing:2px;
+  color:var(--text);margin-bottom:2px;
+}
+.analytics-sub{font-size:11px;color:var(--text3);}
+.chart-bars{
+  display:flex;align-items:flex-end;
+  gap:3px;height:50px;
+  margin-top:8px;
+}
+.chart-bar{
+  flex:1;border-radius:3px 3px 0 0;
+  background:linear-gradient(to top,var(--blue),rgba(41,121,255,.3));
+  transition:height .3s ease;
+  min-height:3px;
+}
+.platform-stats{display:flex;flex-direction:column;gap:5px;}
+.pstat-row{
+  display:flex;align-items:center;gap:8px;
+}
+.pstat-icon{font-size:13px;width:20px;text-align:center;}
+.pstat-name{font-size:11px;color:var(--text2);flex:1;}
+.pstat-bar-wrap{width:70px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.pstat-bar{height:100%;border-radius:3px;background:var(--blue);}
+.pstat-num{
+  font-size:10px;font-family:'JetBrains Mono';
+  color:var(--text2);width:32px;text-align:right;
+}
+.health-row{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.health-item{
+  flex:1;min-width:70px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:8px;
+  text-align:center;
+}
+.health-val{
+  font-family:'JetBrains Mono';
+  font-size:14px;font-weight:600;
+  margin-bottom:3px;
+}
+.health-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.health-val.good{color:var(--green);}
+.health-val.warn{color:var(--yellow);}
+.health-val.bad{color:var(--red);}
+
+/* ============================================
+   MODALS
+   ============================================ */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(10px);
+  z-index:1000;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  width:520px;max-width:96vw;
+  max-height:88vh;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 40px 100px rgba(0,0,0,.7);
+  animation:modal-in .25s ease both;
+}
+@keyframes modal-in{
+  from{opacity:0;transform:scale(.96) translateY(10px);}
+  to{opacity:1;transform:none;}
+}
+.modal-header{
+  padding:18px 22px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.modal-title{font-size:16px;font-weight:800;}
+.modal-close-btn{
+  width:30px;height:30px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:7px;color:var(--text2);font-size:14px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close-btn:hover{color:var(--text);border-color:var(--border3);}
+.modal-body{
+  padding:22px;
+  overflow-y:auto;flex:1;
+}
+.modal-footer{
+  padding:14px 22px;
+  border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;
+  flex-shrink:0;
+}
+.mf-btn{
+  padding:9px 20px;
+  border-radius:8px;
+  font-size:13px;font-weight:700;
+  border:none;transition:all .2s;
+}
+.mf-btn-cancel{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  color:var(--text2);
+}
+.mf-btn-cancel:hover{color:var(--text);}
+.mf-btn-primary{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+}
+.mf-btn-primary:hover{transform:translateY(-1px);box-shadow:var(--glow-blue);}
+
+/* Platform grid in modal */
+.plat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:16px;
+}
+.plat-item{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;
+  transition:all .2s;
+}
+.plat-item:hover{border-color:var(--border2);}
+.plat-item.selected{
+  border-color:var(--blue);
+  background:rgba(41,121,255,.08);
+}
+.plat-item-icon{font-size:20px;flex-shrink:0;}
+.plat-item-info{flex:1;}
+.plat-item-name{font-size:13px;font-weight:700;}
+.plat-item-desc{font-size:10px;color:var(--text3);margin-top:1px;}
+.plat-item-badge{
+  font-size:9px;font-weight:800;letter-spacing:.3px;
+  padding:2px 6px;border-radius:4px;flex-shrink:0;
+}
+.badge-connected{background:rgba(0,230,118,.15);color:var(--green);}
+.badge-oauth{background:rgba(41,121,255,.15);color:var(--blue3);}
+.badge-rtmp{background:rgba(255,215,0,.1);color:var(--yellow);}
+
+/* OBS Guide */
+.obs-setup-section{margin-bottom:20px;}
+.obs-setup-title{
+  font-size:13px;font-weight:700;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.code-block{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px;
+  font-family:'JetBrains Mono';
+  font-size:12px;
+  line-height:1.8;
+  position:relative;
+}
+.code-key{color:var(--blue3);}
+.code-val{color:var(--green);}
+.code-comment{color:var(--text3);}
+.code-copy{
+  position:absolute;top:10px;right:10px;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:5px;
+  padding:3px 10px;
+  font-size:10px;font-family:'Syne';font-weight:700;
+  color:var(--text2);
+  cursor:pointer;transition:all .2s;
+}
+.code-copy:hover{color:var(--blue3);border-color:var(--blue);}
+.rtmp-key-display{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 16px;
+  font-family:'JetBrains Mono';
+  font-size:13px;
+  color:var(--text);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.rtmp-key-value{flex:1;word-break:break-all;}
+.rtmp-copy-btn{
+  padding:5px 12px;border-radius:6px;
+  background:var(--panel2);border:1px solid var(--border2);
+  color:var(--text2);font-size:11px;font-weight:700;
+  transition:all .2s;flex-shrink:0;
+}
+.rtmp-copy-btn:hover{color:var(--blue3);border-color:var(--blue);}
+
+/* Stream settings form */
+.form-group{margin-bottom:14px;}
+.form-label{
+  font-size:11px;font-weight:700;
+  color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:5px;display:block;
+}
+.form-input{
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:8px 12px;
+  font-size:13px;
+  color:var(--text);
+  outline:none;
+  transition:border-color .2s;
+}
+.form-input:focus{border-color:var(--blue);}
+.form-select{
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:8px 12px;
+  font-size:13px;
+  color:var(--text);
+  outline:none;
+  cursor:pointer;
+}
+.form-select:focus{border-color:var(--blue);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* Toast notifications */
+#toast-container{
+  position:fixed;
+  bottom:20px;right:20px;
+  z-index:9999;
+  display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;
+}
+.toast{
+  background:var(--panel3);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:12px 16px;
+  font-size:13px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  animation:toast-in .3s ease both;
+  pointer-events:all;
+  max-width:300px;
+}
+@keyframes toast-in{
+  from{opacity:0;transform:translateX(20px);}
+  to{opacity:1;transform:none;}
+}
+.toast.fade-out{animation:toast-out .3s ease both;}
+@keyframes toast-out{
+  to{opacity:0;transform:translateX(20px);}
+}
+.toast-icon{font-size:16px;flex-shrink:0;}
+.toast-msg{flex:1;line-height:1.4;}
+.toast-success{border-color:rgba(0,230,118,.3);}
+.toast-error{border-color:rgba(255,31,75,.3);}
+.toast-info{border-color:rgba(41,121,255,.3);}
+.toast-warn{border-color:rgba(255,214,0,.3);}
+
+/* Bandwidth meter */
+#bw-meter{
+  display:flex;align-items:center;gap:6px;
+  height:28px;padding:0 10px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:7px;
+  font-size:11px;font-family:'JetBrains Mono';
+  color:var(--text2);
+}
+#bw-value{color:var(--green);}
+
+/* Settings page */
+#settings-page{
+  display:none;
+  position:absolute;inset:0;
+  background:var(--bg);
+  z-index:200;
+  overflow-y:auto;
+}
+#settings-page.open{display:block;}
+.settings-inner{
+  max-width:720px;
+  margin:0 auto;
+  padding:40px 24px;
+}
+.settings-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:32px;
+}
+.settings-back{
+  width:36px;height:36px;
+  background:var(--panel);border:1px solid var(--border2);
+  border-radius:8px;color:var(--text2);font-size:16px;
+  transition:all .2s;
+}
+.settings-back:hover{color:var(--text);}
+.settings-title{font-family:'Bebas Neue';font-size:32px;letter-spacing:2px;}
+.settings-section{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:16px;
+}
+.settings-section-title{
+  font-size:12px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:16px;
+}
+
+/* Responsive */
+@media(max-width:1100px){
+  #main{grid-template-columns:0 1fr 250px;}
+  #left-panel{display:none;}
+}
+@media(max-width:780px){
+  #main{grid-template-columns:1fr;}
+  #right-panel{display:none;}
+  #multiview{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<div id="topbar">
+  <div class="topbar-logo">Stream<span>Live</span></div>
+  <div class="topbar-tabs">
+    <button class="tab-btn active" onclick="switchTab('studio',this)">Studio</button>
+    <button class="tab-btn" onclick="switchTab('setup',this)">OBS Setup</button>
+    <button class="tab-btn" onclick="switchTab('settings',this)">Settings</button>
+  </div>
+  <div class="topbar-right">
+    <div id="bw-meter">
+      <span>↑</span>
+      <span id="bw-value">--</span>
+      <span>Mbps</span>
+    </div>
+    <div class="stream-info">
+      <div class="pulse-dot" id="topbar-dot"></div>
+      <span id="topbar-timer">00:00:00</span>
+    </div>
+    <div class="viewer-chip">
+      <span class="viewer-icon">👥</span>
+      <span id="topbar-viewers">0</span>
+    </div>
+    <button class="tbar-btn" onclick="openModal('connect-modal')">+ Connect</button>
+    <button id="go-live-btn" onclick="toggleGoLive()">
+      <div class="btn-dot"></div>
+      <span id="go-live-text">GO LIVE</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===================== MAIN AREA ===================== -->
+<div id="main">
+
+  <!-- ============== LEFT PANEL ============== -->
+  <div id="left-panel">
+
+    <!-- Sources -->
+    <div class="lpanel-section">
+      <div class="lpanel-header">
+        Sources
+        <button class="lp-add-btn" onclick="openModal('add-source-modal')">+</button>
+      </div>
+      <div class="lp-list" id="sources-list">
+        <div class="lp-item active" onclick="selectSource(this,'obs-cam')">
+          <div class="lp-item-icon" style="background:rgba(41,121,255,.15)">📹</div>
+          <div class="lp-item-info">
+            <div class="lp-item-name">OBS Virtual Camera</div>
+            <div class="lp-item-sub">virtual-cam</div>
+          </div>
+          <div class="lp-status" style="background:var(--green)"></div>
+        </div>
+        <div class="lp-item" onclick="selectSource(this,'screen')">
+          <div class="lp-item-icon" style="background:rgba(0,230,118,.15)">🖥️</div>
+          <div class="lp-item-info">
+            <div class="lp-item-name">Screen Share</div>
+            <div class="lp-item-sub">display-capture</div>
+          </div>
+          <div class="lp-status" style="background:var(--yellow)"></div>
+        </div>
+        <div class="lp-item" onclick="selectSource(this,'webcam')">
+          <div class="lp-item-icon" style="background:rgba(255,107,43,.15)">📷</div>
+          <div class="lp-item-info">
+            <div class="lp-item-name">Webcam</div>
+            <div class="lp-item-sub">video-device</div>
+          </div>
+          <div class="lp-status" style="background:var(--text3)"></div>
+        </div>
+        <div class="lp-item" onclick="selectSource(this,'mic')">
+          <div class="lp-item-icon" style="background:rgba(255,214,0,.15)">🎙️</div>
+          <div class="lp-item-info">
+            <div class="lp-item-name">Microphone</div>
+            <div class="lp-item-sub">audio-input</div>
+          </div>
+          <div class="lp-status" style="background:var(--green)"></div>
+        </div>
+        <div class="lp-item" onclick="selectSource(this,'media')">
+          <div class="lp-item-icon" style="background:rgba(179,136,255,.15)">🎬</div>
+          <div class="lp-item-info">
+            <div class="lp-item-name">Media File</div>
+            <div class="lp-item-sub">media-source</div>
+          </div>
+          <div class="lp-status" style="background:var(--text3)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio -->
+    <div class="lpanel-section">
+      <div class="lpanel-header">Audio Mixer</div>
+      <div id="audio-section">
+        <div class="audio-meter-row">
+          <div class="audio-label">MIC</div>
+          <div class="audio-meter"><div class="audio-fill" id="mic-meter" style="width:0%"></div></div>
+          <button class="audio-vol-btn" id="mic-mute-btn" onclick="toggleMicMute()" title="Mute/Unmute">🎙</button>
+        </div>
+        <div class="audio-meter-row">
+          <div class="audio-label">DESKTOP</div>
+          <div class="audio-meter"><div class="audio-fill" id="desk-meter" style="width:45%"></div></div>
+          <button class="audio-vol-btn" id="desk-mute-btn" onclick="toggleDeskMute()" title="Mute/Unmute">🔊</button>
+        </div>
+        <div class="audio-meter-row">
+          <div class="audio-label">MASTER</div>
+          <div class="audio-meter"><div class="audio-fill" id="master-meter" style="width:60%"></div></div>
+          <button class="audio-vol-btn" title="Settings">⚙</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenes -->
+    <div class="lpanel-section" style="flex:1;">
+      <div class="lpanel-header">
+        Scenes
+        <button class="lp-add-btn" onclick="addNewScene()">+</button>
+      </div>
+      <div class="scenes-grid" id="scenes-grid">
+        <div class="scene-tile active" onclick="switchScene(this,'Main Stream')">
+          <div class="scene-tile-preview">🎥</div>
+          <div class="scene-tile-name">Main Stream</div>
+        </div>
+        <div class="scene-tile" onclick="switchScene(this,'Intro')">
+          <div class="scene-tile-preview">🎬</div>
+          <div class="scene-tile-name">Intro</div>
+        </div>
+        <div class="scene-tile" onclick="switchScene(this,'Screen Share')">
+          <div class="scene-tile-preview">🖥️</div>
+          <div class="scene-tile-name">Screen Share</div>
+        </div>
+        <div class="scene-tile" onclick="switchScene(this,'BRB')">
+          <div class="scene-tile-preview" style="background:var(--bg);">⬛</div>
+          <div class="scene-tile-name">BRB</div>
+        </div>
+        <div class="scene-tile" onclick="switchScene(this,'Just Chatting')">
+          <div class="scene-tile-preview">💬</div>
+          <div class="scene-tile-name">Just Chatting</div>
+        </div>
+        <div class="scene-tile" onclick="switchScene(this,'Outro')">
+          <div class="scene-tile-preview">🏁</div>
+          <div class="scene-tile-name">Outro</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- ============== CENTER ============== -->
+  <div id="center">
+
+    <!-- Canvas -->
+    <div id="canvas-wrap">
+      <div id="canvas-bg"></div>
+      <div id="canvas-grid"></div>
+      <div id="main-video-container">
+        <video id="main-video" autoplay muted playsinline></video>
+        <div id="canvas-placeholder">
+          <div class="cp-icon">📡</div>
+          <div class="cp-title">No Source Connected</div>
+          <div class="cp-sub">Connect OBS Virtual Camera or start Screen Share</div>
+          <div class="cp-actions">
+            <button class="cp-btn cp-btn-primary" onclick="startObsCamera()">📹 Connect OBS Camera</button>
+            <button class="cp-btn cp-btn-secondary" onclick="startScreenShare()">🖥️ Share Screen</button>
+          </div>
+        </div>
+        <div id="canvas-overlays"></div>
+        <div id="canvas-quality-badge">1080p · 60fps</div>
+        <div id="canvas-live-badge"><div class="badge-dot"></div>LIVE</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <div class="tb-group">
+        <span class="tb-label">SOURCE</span>
+        <button class="tb-btn on" id="btn-obs" onclick="startObsCamera()" title="OBS Camera">
+          📹<div class="tb-tooltip">OBS Virtual Camera</div>
+        </button>
+        <button class="tb-btn" id="btn-screen" onclick="startScreenShare()">
+          🖥️<div class="tb-tooltip">Screen Share</div>
+        </button>
+        <button class="tb-btn" id="btn-webcam" onclick="startWebcam()">
+          📷<div class="tb-tooltip">Webcam</div>
+        </button>
+        <button class="tb-btn" id="btn-media" onclick="openMediaFile()">
+          📂<div class="tb-tooltip">Open Media File</div>
+        </button>
+        <input type="file" id="media-file-input" accept="video/*,image/*" style="display:none" onchange="loadMediaFile(event)">
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">AUDIO</span>
+        <button class="tb-btn on" id="btn-mic" onclick="toggleMic()">
+          🎙️<div class="tb-tooltip">Microphone</div>
+        </button>
+        <button class="tb-btn on" id="btn-audio" onclick="toggleAudio()">
+          🔊<div class="tb-tooltip">Desktop Audio</div>
+        </button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">OVERLAY</span>
+        <button class="tb-btn" onclick="addOverlay('text')">
+          T<div class="tb-tooltip">Add Text Overlay</div>
+        </button>
+        <button class="tb-btn" onclick="addOverlay('lower')">
+          ▬<div class="tb-tooltip">Lower Third</div>
+        </button>
+        <button class="tb-btn" onclick="addOverlay('ticker')">
+          📰<div class="tb-tooltip">News Ticker</div>
+        </button>
+        <button class="tb-btn" onclick="addOverlay('logo')">
+          🖼️<div class="tb-tooltip">Add Logo/Image</div>
+        </button>
+      </div>
+      <div class="tb-group">
+        <span class="tb-label">TOOLS</span>
+        <select class="trans-select" id="trans-select" onchange="setTransition(this.value)">
+          <option value="cut">Cut</option>
+          <option value="fade">Fade</option>
+          <option value="slide">Slide Left</option>
+          <option value="zoom">Zoom</option>
+        </select>
+        <button class="tb-btn" id="btn-record" onclick="toggleRecord()">
+          ⏺️<div class="tb-tooltip">Record Locally</div>
+        </button>
+        <button class="tb-btn" onclick="takeSnapshot()">
+          📸<div class="tb-tooltip">Take Snapshot</div>
+        </button>
+        <button class="tb-btn" onclick="toggleFullscreen()">
+          ⛶<div class="tb-tooltip">Fullscreen Preview</div>
+        </button>
+      </div>
+      <div class="tb-group">
+        <button class="tb-btn" onclick="openModal('obs-modal')">
+          ⚙️<div class="tb-tooltip">OBS/RTMP Settings</div>
+        </button>
+        <button class="tb-btn" onclick="runBandwidthTest()">
+          📶<div class="tb-tooltip">Test Bandwidth</div>
+        </button>
+        <button class="tb-btn" onclick="openModal('guests-modal')">
+          👥<div class="tb-tooltip">Invite Guests</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Multiview -->
+    <div id="multiview">
+      <div class="mv-tile live-tile" id="mv-program" onclick="mvSelect(this,'Program')">
+        <div class="mv-preview" id="mv-program-preview">🎥</div>
+        <div class="mv-label">⬤ PROGRAM</div>
+      </div>
+      <div class="mv-tile active" id="mv-preview-tile" onclick="mvSelect(this,'Preview')">
+        <div class="mv-preview">🔲</div>
+        <div class="mv-label">PREVIEW</div>
+      </div>
+      <div class="mv-tile" onclick="mvSelect(this,'Scene 3')">
+        <div class="mv-preview">🖥️</div>
+        <div class="mv-label">SCREEN SHARE</div>
+      </div>
+      <div class="mv-tile" onclick="mvSelect(this,'Intro')">
+        <div class="mv-preview">🎬</div>
+        <div class="mv-label">INTRO</div>
+      </div>
+      <div class="mv-tile" onclick="mvSelect(this,'BRB')">
+        <div class="mv-preview" style="background:#000">⬛</div>
+        <div class="mv-label">BRB</div>
+      </div>
+      <button class="mv-add" onclick="addNewScene()">+</button>
+    </div>
+
+  </div><!-- /center -->
+
+  <!-- ============== RIGHT PANEL ============== -->
+  <div id="right-panel">
+    <div class="rp-tabs">
+      <button class="rp-tab active" onclick="switchRpTab('destinations',this)">Destinations</button>
+      <button class="rp-tab" onclick="switchRpTab('chat',this)">
+        Chat
+        <span class="badge" id="chat-badge">0</span>
+      </button>
+      <button class="rp-tab" onclick="switchRpTab('analytics',this)">Analytics</button>
+    </div>
+
+    <!-- DESTINATIONS -->
+    <div id="rp-destinations">
+
+      <div class="dest-card connected" id="dest-youtube" data-platform="youtube">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(255,0,0,.12)">▶️</div>
+          <div class="dest-name">YouTube Live</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text on" id="yt-status">ON</span>
+            <div class="toggle-switch on" id="toggle-yt" onclick="toggleDest('yt')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <div class="dest-row">
+            <input class="dest-input" id="yt-key" placeholder="YouTube Stream Key" value="yt-live-••••••••••••">
+          </div>
+          <div class="dest-stats">
+            <span class="dest-stat">Viewers: <span id="yt-viewers">0</span></span>
+            <span class="dest-stat">Bitrate: <span id="yt-bitrate">--</span></span>
+            <span class="dest-stat">Latency: <span id="yt-latency">--</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dest-card connected" id="dest-twitch" data-platform="twitch">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(145,71,255,.12)">🟣</div>
+          <div class="dest-name">Twitch</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text on" id="tw-status">ON</span>
+            <div class="toggle-switch on" id="toggle-tw" onclick="toggleDest('tw')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <div class="dest-row">
+            <input class="dest-input" id="tw-key" placeholder="Twitch Stream Key" value="live_••••••••••••">
+          </div>
+          <div class="dest-stats">
+            <span class="dest-stat">Viewers: <span id="tw-viewers">0</span></span>
+            <span class="dest-stat">Bitrate: <span id="tw-bitrate">--</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-facebook" data-platform="facebook">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(24,119,242,.12)">🔵</div>
+          <div class="dest-name">Facebook Live</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="fb-status">OFF</span>
+            <div class="toggle-switch" id="toggle-fb" onclick="toggleDest('fb')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <div class="dest-row">
+            <input class="dest-input" id="fb-key" placeholder="Facebook Stream Key or RTMP URL">
+          </div>
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-tiktok" data-platform="tiktok">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(255,0,80,.1)">🎵</div>
+          <div class="dest-name">TikTok Live</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="tt-status">OFF</span>
+            <div class="toggle-switch" id="toggle-tt" onclick="toggleDest('tt')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <input class="dest-input" id="tt-key" placeholder="TikTok RTMP Stream Key">
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-instagram" data-platform="instagram">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(228,64,95,.12)">📸</div>
+          <div class="dest-name">Instagram Live</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="ig-status">OFF</span>
+            <div class="toggle-switch" id="toggle-ig" onclick="toggleDest('ig')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <input class="dest-input" id="ig-key" placeholder="Instagram RTMP Stream Key">
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-twitter" data-platform="twitter">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(29,155,240,.12)">🐦</div>
+          <div class="dest-name">X / Twitter</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="xw-status">OFF</span>
+            <div class="toggle-switch" id="toggle-xw" onclick="toggleDest('xw')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <input class="dest-input" id="xw-key" placeholder="X/Twitter Stream Key">
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-linkedin" data-platform="linkedin">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(10,102,194,.12)">💼</div>
+          <div class="dest-name">LinkedIn Live</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="li-status">OFF</span>
+            <div class="toggle-switch" id="toggle-li" onclick="toggleDest('li')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <input class="dest-input" id="li-key" placeholder="LinkedIn RTMP Stream Key">
+        </div>
+      </div>
+
+      <div class="dest-card" id="dest-custom" data-platform="custom">
+        <div class="dest-top">
+          <div class="dest-icon" style="background:rgba(255,107,43,.12)">📡</div>
+          <div class="dest-name">Custom RTMP</div>
+          <div class="dest-toggle-wrap">
+            <span class="dest-status-text" id="cu-status">OFF</span>
+            <div class="toggle-switch" id="toggle-cu" onclick="toggleDest('cu')"></div>
+          </div>
+        </div>
+        <div class="dest-body">
+          <input class="dest-input" id="cu-url" placeholder="rtmp://your-server/live" style="margin-bottom:4px">
+          <input class="dest-input" id="cu-key" placeholder="Stream Key">
+        </div>
+      </div>
+
+      <button class="add-dest-btn" onclick="openModal('connect-modal')">+ Add / Manage Destinations</button>
+
+    </div><!-- /rp-destinations -->
+
+    <!-- CHAT PANEL -->
+    <div id="rp-chat">
+      <div style="padding:8px;">
+        <div class="chat-filter-row" id="chat-filters">
+          <button class="cf-chip active" onclick="filterChat('all',this)">All</button>
+          <button class="cf-chip" onclick="filterChat('youtube',this)">▶ YT</button>
+          <button class="cf-chip" onclick="filterChat('twitch',this)">🟣 Twitch</button>
+          <button class="cf-chip" onclick="filterChat('facebook',this)">🔵 FB</button>
+          <button class="cf-chip" onclick="filterChat('tiktok',this)">🎵 TT</button>
+        </div>
+      </div>
+      <div id="chat-messages"></div>
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Reply to all platforms..." onkeydown="chatKeyDown(event)">
+          <button id="chat-send-btn" onclick="sendChat()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="rp-analytics">
+      <div class="analytics-card">
+        <div class="analytics-title">Total Viewers</div>
+        <div class="analytics-big" id="analytics-total">0</div>
+        <div class="analytics-sub">across all platforms</div>
+        <div class="chart-bars" id="viewer-chart"></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title">By Platform</div>
+        <div class="platform-stats" id="platform-stats">
+          <div class="pstat-row">
+            <span class="pstat-icon">▶️</span>
+            <span class="pstat-name">YouTube</span>
+            <div class="pstat-bar-wrap"><div class="pstat-bar" id="yt-pbar" style="width:0%;background:#ff0000"></div></div>
+            <span class="pstat-num" id="yt-pnum">0</span>
+          </div>
+          <div class="pstat-row">
+            <span class="pstat-icon">🟣</span>
+            <span class="pstat-name">Twitch</span>
+            <div class="pstat-bar-wrap"><div class="pstat-bar" id="tw-pbar" style="width:0%;background:#9147ff"></div></div>
+            <span class="pstat-num" id="tw-pnum">0</span>
+          </div>
+          <div class="pstat-row">
+            <span class="pstat-icon">🔵</span>
+            <span class="pstat-name">Facebook</span>
+            <div class="pstat-bar-wrap"><div class="pstat-bar" id="fb-pbar" style="width:0%;background:#1877f2"></div></div>
+            <span class="pstat-num" id="fb-pnum">0</span>
+          </div>
+          <div class="pstat-row">
+            <span class="pstat-icon">🎵</span>
+            <span class="pstat-name">TikTok</span>
+            <div class="pstat-bar-wrap"><div class="pstat-bar" id="tt-pbar" style="width:0%;background:#ff0050"></div></div>
+            <span class="pstat-num" id="tt-pnum">0</span>
+          </div>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title">Stream Health</div>
+        <div class="health-row">
+          <div class="health-item">
+            <div class="health-val good" id="h-fps">--</div>
+            <div class="health-label">FPS</div>
+          </div>
+          <div class="health-item">
+            <div class="health-val good" id="h-bitrate">--</div>
+            <div class="health-label">Kbps</div>
+          </div>
+          <div class="health-item">
+            <div class="health-val warn" id="h-cpu">--</div>
+            <div class="health-label">CPU %</div>
+          </div>
+          <div class="health-item">
+            <div class="health-val good" id="h-dropped">0</div>
+            <div class="health-label">Dropped</div>
+          </div>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title">Stream Duration</div>
+        <div class="analytics-big" id="analytics-duration">00:00:00</div>
+        <div class="analytics-sub" id="analytics-status">Offline</div>
+      </div>
+    </div>
+
+    <!-- GO LIVE BAR -->
+    <div id="go-live-bar">
+      <div class="gl-row">
+        <div id="gl-timer">00:00:00</div>
+        <div id="gl-active-count">0 destinations active</div>
+      </div>
+      <button id="gl-main-btn" onclick="toggleGoLive()">
+        <div class="gl-dot"></div>
+        <span id="gl-btn-text">GO LIVE NOW</span>
+      </button>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</div><!-- /main -->
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Connect Platforms Modal -->
+<div class="modal-overlay" id="connect-modal" onclick="closeModalOutside(event,'connect-modal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Connect Streaming Platforms</div>
+      <button class="modal-close-btn" onclick="closeModal('connect-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Connect via OAuth for automatic setup, or manually add RTMP stream keys from each platform's dashboard.</p>
+      <div class="plat-grid">
+        <div class="plat-item selected" onclick="togglePlatformConnect(this,'YouTube')">
+          <div class="plat-item-icon">▶️</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">YouTube Live</div>
+            <div class="plat-item-desc">OAuth · RTMP · API</div>
+          </div>
+          <span class="plat-item-badge badge-connected">Connected</span>
+        </div>
+        <div class="plat-item selected" onclick="togglePlatformConnect(this,'Twitch')">
+          <div class="plat-item-icon">🟣</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Twitch</div>
+            <div class="plat-item-desc">OAuth · RTMP · API</div>
+          </div>
+          <span class="plat-item-badge badge-connected">Connected</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'Facebook')">
+          <div class="plat-item-icon">🔵</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Facebook Live</div>
+            <div class="plat-item-desc">OAuth · RTMP</div>
+          </div>
+          <span class="plat-item-badge badge-oauth">Connect</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'TikTok')">
+          <div class="plat-item-icon">🎵</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">TikTok Live</div>
+            <div class="plat-item-desc">RTMP · Stream Key</div>
+          </div>
+          <span class="plat-item-badge badge-rtmp">RTMP</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'Instagram')">
+          <div class="plat-item-icon">📸</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Instagram Live</div>
+            <div class="plat-item-desc">RTMP · Stream Key</div>
+          </div>
+          <span class="plat-item-badge badge-rtmp">RTMP</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'X/Twitter')">
+          <div class="plat-item-icon">🐦</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">X / Twitter</div>
+            <div class="plat-item-desc">RTMP · Stream Key</div>
+          </div>
+          <span class="plat-item-badge badge-rtmp">RTMP</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'LinkedIn')">
+          <div class="plat-item-icon">💼</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">LinkedIn Live</div>
+            <div class="plat-item-desc">RTMP · Stream Key</div>
+          </div>
+          <span class="plat-item-badge badge-rtmp">RTMP</span>
+        </div>
+        <div class="plat-item" onclick="togglePlatformConnect(this,'Custom RTMP')">
+          <div class="plat-item-icon">📡</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Custom RTMP</div>
+            <div class="plat-item-desc">Any server</div>
+          </div>
+          <span class="plat-item-badge badge-rtmp">RTMP</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn mf-btn-cancel" onclick="closeModal('connect-modal')">Cancel</button>
+      <button class="mf-btn mf-btn-primary" onclick="saveConnections()">Save Connections</button>
+    </div>
+  </div>
+</div>
+
+<!-- OBS / RTMP Settings Modal -->
+<div class="modal-overlay" id="obs-modal" onclick="closeModalOutside(event,'obs-modal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ OBS & RTMP Configuration</div>
+      <button class="modal-close-btn" onclick="closeModal('obs-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="obs-setup-section">
+        <div class="obs-setup-title">🔑 Your RTMP Ingest URL</div>
+        <div class="rtmp-key-display">
+          <span class="rtmp-key-value" id="rtmp-url-display">rtmp://ingest.streamlive.io/live</span>
+          <button class="rtmp-copy-btn" onclick="copyText('rtmp://ingest.streamlive.io/live','RTMP URL')">Copy</button>
+        </div>
+      </div>
+      <div class="obs-setup-section">
+        <div class="obs-setup-title">🔑 Your Stream Key</div>
+        <div class="rtmp-key-display">
+          <span class="rtmp-key-value" id="stream-key-display">sl-••••••••-••••-••••-••••-••••••••••••</span>
+          <button class="rtmp-copy-btn" onclick="revealStreamKey()">Reveal</button>
+          <button class="rtmp-copy-btn" onclick="copyStreamKey()">Copy</button>
+        </div>
+      </div>
+      <div class="obs-setup-section">
+        <div class="obs-setup-title">📋 OBS Recommended Settings</div>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyOBSSettings()">Copy All</button>
+          <div><span class="code-comment"># OBS → Settings → Stream</span></div>
+          <div><span class="code-key">Service:</span>      <span class="code-val">Custom RTMP</span></div>
+          <div><span class="code-key">Server:</span>       <span class="code-val">rtmp://ingest.streamlive.io/live</span></div>
+          <div><span class="code-key">Stream Key:</span>   <span class="code-val">[your stream key above]</span></div>
+          <br>
+          <div><span class="code-comment"># OBS → Settings → Output</span></div>
+          <div><span class="code-key">Encoder:</span>      <span class="code-val">NVENC H.264 (or x264)</span></div>
+          <div><span class="code-key">Bitrate:</span>      <span class="code-val">6000 Kbps (CBR)</span></div>
+          <div><span class="code-key">Keyframe:</span>     <span class="code-val">2 seconds</span></div>
+          <div><span class="code-key">Profile:</span>      <span class="code-val">high</span></div>
+          <div><span class="code-key">Tune:</span>         <span class="code-val">zerolatency</span></div>
+          <br>
+          <div><span class="code-comment"># OBS → Settings → Video</span></div>
+          <div><span class="code-key">Base Res:</span>     <span class="code-val">1920x1080</span></div>
+          <div><span class="code-key">Output Res:</span>   <span class="code-val">1920x1080</span></div>
+          <div><span class="code-key">FPS:</span>          <span class="code-val">60 (or 30)</span></div>
+        </div>
+      </div>
+      <div class="obs-setup-section">
+        <div class="obs-setup-title">🎥 Stream Quality Preset</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Resolution</label>
+            <select class="form-select" id="pref-res" onchange="updateQualityBadge()">
+              <option value="1920x1080">1080p (Full HD)</option>
+              <option value="1280x720">720p (HD)</option>
+              <option value="854x480">480p (SD)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Framerate</label>
+            <select class="form-select" id="pref-fps" onchange="updateQualityBadge()">
+              <option value="60">60 fps</option>
+              <option value="30">30 fps</option>
+              <option value="24">24 fps</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Bitrate</label>
+          <select class="form-select" id="pref-bitrate">
+            <option value="8000">8,000 Kbps (Premium)</option>
+            <option value="6000" selected>6,000 Kbps (Standard)</option>
+            <option value="4500">4,500 Kbps (Balanced)</option>
+            <option value="3000">3,000 Kbps (Eco)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn mf-btn-cancel" onclick="closeModal('obs-modal')">Close</button>
+      <button class="mf-btn mf-btn-primary" onclick="saveObsSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Source Modal -->
+<div class="modal-overlay" id="add-source-modal" onclick="closeModalOutside(event,'add-source-modal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add Source</div>
+      <button class="modal-close-btn" onclick="closeModal('add-source-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="plat-grid">
+        <div class="plat-item" onclick="addSourceFromModal('OBS Virtual Camera','📹','virtual-cam')">
+          <div class="plat-item-icon">📹</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">OBS Virtual Camera</div>
+            <div class="plat-item-desc">Connect OBS as source</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('Screen Capture','🖥️','display')">
+          <div class="plat-item-icon">🖥️</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Screen Capture</div>
+            <div class="plat-item-desc">Share your screen</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('Webcam','📷','video-device')">
+          <div class="plat-item-icon">📷</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Webcam</div>
+            <div class="plat-item-desc">Built-in or USB camera</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('Audio Input','🎙️','audio-input')">
+          <div class="plat-item-icon">🎙️</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Audio Input</div>
+            <div class="plat-item-desc">Microphone / Line-in</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="document.getElementById('media-file-input').click();closeModal('add-source-modal')">
+          <div class="plat-item-icon">🎬</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Media File</div>
+            <div class="plat-item-desc">Video, image file</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('NDI Source','🌐','ndi')">
+          <div class="plat-item-icon">🌐</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">NDI Source</div>
+            <div class="plat-item-desc">Network video source</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('IP Camera','📡','ip-cam')">
+          <div class="plat-item-icon">📡</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">IP Camera</div>
+            <div class="plat-item-desc">RTSP / HTTP stream</div>
+          </div>
+        </div>
+        <div class="plat-item" onclick="addSourceFromModal('Text/Title','✏️','text-source')">
+          <div class="plat-item-icon">✏️</div>
+          <div class="plat-item-info">
+            <div class="plat-item-name">Text / Title</div>
+            <div class="plat-item-desc">Custom text overlay</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn mf-btn-cancel" onclick="closeModal('add-source-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guests Modal -->
+<div class="modal-overlay" id="guests-modal" onclick="closeModalOutside(event,'guests-modal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">👥 Invite Guests</div>
+      <button class="modal-close-btn" onclick="closeModal('guests-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Share the link below to invite remote guests. They join via browser — no install needed. Up to 8 guests.</p>
+      <div class="rtmp-key-display" style="margin-bottom:16px;">
+        <span class="rtmp-key-value" id="guest-link">https://streamlive.io/guest/room-7f4a2b8e</span>
+        <button class="rtmp-copy-btn" onclick="copyText(document.getElementById('guest-link').textContent,'Guest Link')">Copy</button>
+      </div>
+      <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono';margin-bottom:12px;">Active guests (0/8):</div>
+      <div id="guest-slots" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;font-size:12px;color:var(--text3);">Slot 1 — Waiting...</div>
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;font-size:12px;color:var(--text3);">Slot 2 — Waiting...</div>
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;font-size:12px;color:var(--text3);">Slot 3 — Waiting...</div>
+        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;font-size:12px;color:var(--text3);">Slot 4 — Waiting...</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-btn mf-btn-cancel" onclick="closeModal('guests-modal')">Close</button>
+      <button class="mf-btn mf-btn-primary" onclick="copyText(document.getElementById('guest-link').textContent,'Guest Link')">📋 Copy Invite Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Hidden canvas for snapshot -->
+<canvas id="snapshot-canvas" style="display:none"></canvas>
+<script>
+/* ============================================================
+   StreamLive Studio — Full Functionality Engine
+   ============================================================ */
+
+// ─── STATE ───────────────────────────────────────────────────
+const S = {
+  isLive: false,
+  isRecording: false,
+  streamSeconds: 0,
+  streamInterval: null,
+  micMuted: false,
+  audioMuted: false,
+  micStream: null,
+  audioContext: null,
+  analyser: null,
+  micAnalyser: null,
+  mediaRecorder: null,
+  recordedChunks: [],
+  currentStream: null,
+  currentScene: 'Main Stream',
+  transition: 'cut',
+  viewerData: { yt: 0, tw: 0, fb: 0, tt: 0 },
+  viewerHistory: [],
+  chatFilter: 'all',
+  unreadChat: 0,
+  destEnabled: { yt: true, tw: true, fb: false, tt: false, ig: false, xw: false, li: false, cu: false },
+  streamKey: 'sl-f7a9-4b2e-9c1d-3e8f-a471b825c963',
+  overlays: [],
+  dragState: null,
+  bandwidthInterval: null,
+  healthInterval: null,
+  chatInterval: null,
+  viewerInterval: null,
+};
+
+// ─── INIT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initViewerChart();
+  startAudioSimulation();
+  startBandwidthMeter();
+  startHealthMonitor();
+  scheduleRandomChat();
+  updateActiveDestCount();
+  toast('info', '📡', 'StreamLive Studio ready. Connect OBS or share your screen to begin.');
+});
+
+// ─── GO LIVE ──────────────────────────────────────────────────
+function toggleGoLive() {
+  if (!S.isLive) {
+    goLive();
+  } else {
+    endStream();
+  }
+}
+
+function goLive() {
+  const active = Object.values(S.destEnabled).filter(Boolean).length;
+  if (active === 0) {
+    toast('warn', '⚠️', 'Enable at least one destination before going live.');
+    return;
+  }
+
+  S.isLive = true;
+  S.streamSeconds = 0;
+
+  // Update UI
+  document.getElementById('go-live-btn').classList.add('streaming');
+  document.getElementById('go-live-text').textContent = 'END STREAM';
+  document.getElementById('gl-main-btn').classList.add('streaming');
+  document.getElementById('gl-btn-text').textContent = 'END STREAM';
+  document.getElementById('topbar-dot').classList.add('live');
+  document.getElementById('topbar-timer').classList.add('live');
+  document.getElementById('gl-timer').classList.add('live');
+  document.getElementById('canvas-live-badge').classList.add('show');
+  document.getElementById('analytics-status').textContent = 'Live Now';
+
+  // Start timers
+  S.streamInterval = setInterval(tickStream, 1000);
+
+  // Mark streaming destinations
+  ['yt','tw','fb','tt','ig','xw','li','cu'].forEach(k => {
+    if (S.destEnabled[k]) {
+      const card = getDestCard(k);
+      if (card) {
+        card.classList.add('streaming');
+        const st = document.getElementById(k + '-status');
+        if (st) { st.textContent = 'LIVE'; st.className = 'dest-status-text live'; }
+      }
+    }
+  });
+
+  // Grow viewers
+  S.viewerInterval = setInterval(growViewers, 2500);
+
+  // Add system chat
+  addSystemChat('🔴 Stream is now LIVE on ' + active + ' platform' + (active > 1 ? 's' : '') + '!');
+  toast('success', '🔴', 'You are now LIVE on ' + active + ' platform' + (active > 1 ? 's' : '') + '!');
+}
+
+function endStream() {
+  S.isLive = false;
+  clearInterval(S.streamInterval);
+  clearInterval(S.viewerInterval);
+  S.streamInterval = null;
+
+  document.getElementById('go-live-btn').classList.remove('streaming');
+  document.getElementById('go-live-text').textContent = 'GO LIVE';
+  document.getElementById('gl-main-btn').classList.remove('streaming');
+  document.getElementById('gl-btn-text').textContent = 'GO LIVE NOW';
+  document.getElementById('topbar-dot').classList.remove('live');
+  document.getElementById('topbar-timer').classList.remove('live');
+  document.getElementById('gl-timer').classList.remove('live');
+  document.getElementById('canvas-live-badge').classList.remove('show');
+  document.getElementById('analytics-status').textContent = 'Stream Ended';
+
+  // Stop recording if active
+  if (S.isRecording) toggleRecord();
+
+  // Clear dest streaming state
+  ['yt','tw','fb','tt','ig','xw','li','cu'].forEach(k => {
+    const card = getDestCard(k);
+    if (card) {
+      card.classList.remove('streaming');
+      const st = document.getElementById(k + '-status');
+      if (st && S.destEnabled[k]) { st.textContent = 'ON'; st.className = 'dest-status-text on'; }
+    }
+  });
+
+  // Reset viewers
+  S.viewerData = { yt: 0, tw: 0, fb: 0, tt: 0 };
+  updateViewerUI();
+
+  addSystemChat('⏹ Stream ended. Thanks for watching!');
+  toast('info', '⏹', 'Stream ended. Duration: ' + formatTime(S.streamSeconds));
+
+  S.streamSeconds = 0;
+  updateTimerDisplays(0);
+}
+
+function getDestCard(k) {
+  const map = { yt:'dest-youtube', tw:'dest-twitch', fb:'dest-facebook', tt:'dest-tiktok', ig:'dest-instagram', xw:'dest-twitter', li:'dest-linkedin', cu:'dest-custom' };
+  return document.getElementById(map[k]);
+}
+
+// ─── TIMER ────────────────────────────────────────────────────
+function tickStream() {
+  S.streamSeconds++;
+  updateTimerDisplays(S.streamSeconds);
+}
+
+function formatTime(s) {
+  return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60]
+    .map(v => String(v).padStart(2,'0')).join(':');
+}
+
+function updateTimerDisplays(s) {
+  const t = formatTime(s);
+  document.getElementById('topbar-timer').textContent = t;
+  document.getElementById('gl-timer').textContent = t;
+  document.getElementById('analytics-duration').textContent = t;
+}
+
+// ─── VIEWERS ──────────────────────────────────────────────────
+function growViewers() {
+  const delta = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  if (S.destEnabled.yt) S.viewerData.yt = Math.max(0, S.viewerData.yt + delta(-5, 30));
+  if (S.destEnabled.tw) S.viewerData.tw = Math.max(0, S.viewerData.tw + delta(-4, 25));
+  if (S.destEnabled.fb) S.viewerData.fb = Math.max(0, S.viewerData.fb + delta(-3, 20));
+  if (S.destEnabled.tt) S.viewerData.tt = Math.max(0, S.viewerData.tt + delta(-3, 18));
+  updateViewerUI();
+  pushViewerHistory();
+}
+
+function updateViewerUI() {
+  const total = S.viewerData.yt + S.viewerData.tw + S.viewerData.fb + S.viewerData.tt;
+  const fmt = n => n >= 1000 ? (n/1000).toFixed(1) + 'k' : String(n);
+
+  document.getElementById('topbar-viewers').textContent = fmt(total);
+  document.getElementById('analytics-total').textContent = fmt(total);
+
+  const el = id => document.getElementById(id);
+  el('yt-viewers').textContent = fmt(S.viewerData.yt);
+  el('tw-viewers').textContent = fmt(S.viewerData.tw);
+  el('yt-pnum').textContent = fmt(S.viewerData.yt);
+  el('tw-pnum').textContent = fmt(S.viewerData.tw);
+  el('fb-pnum').textContent = fmt(S.viewerData.fb);
+  el('tt-pnum').textContent = fmt(S.viewerData.tt);
+
+  const max = Math.max(total, 1);
+  el('yt-pbar').style.width = (S.viewerData.yt / max * 100) + '%';
+  el('tw-pbar').style.width = (S.viewerData.tw / max * 100) + '%';
+  el('fb-pbar').style.width = (S.viewerData.fb / max * 100) + '%';
+  el('tt-pbar').style.width = (S.viewerData.tt / max * 100) + '%';
+
+  // Dest stats
+  const elt = id => { const e = document.getElementById(id); if(e) return e; };
+  ['yt-bitrate','tw-bitrate'].forEach(id => {
+    const e = elt(id); if (e && S.isLive) e.textContent = (5.8 + Math.random() * 0.4).toFixed(1) + ' Mbps';
+  });
+  ['yt-latency'].forEach(id => {
+    const e = elt(id); if (e && S.isLive) e.textContent = (18 + Math.floor(Math.random() * 10)) + 'ms';
+  });
+}
+
+// ─── VIEWER CHART ─────────────────────────────────────────────
+function initViewerChart() {
+  const chart = document.getElementById('viewer-chart');
+  for (let i = 0; i < 20; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.height = '3px';
+    chart.appendChild(bar);
+  }
+}
+
+function pushViewerHistory() {
+  const total = S.viewerData.yt + S.viewerData.tw + S.viewerData.fb + S.viewerData.tt;
+  S.viewerHistory.push(total);
+  if (S.viewerHistory.length > 20) S.viewerHistory.shift();
+
+  const bars = document.querySelectorAll('#viewer-chart .chart-bar');
+  const max = Math.max(...S.viewerHistory, 1);
+  bars.forEach((bar, i) => {
+    const val = S.viewerHistory[i] || 0;
+    bar.style.height = Math.max(3, (val / max * 50)) + 'px';
+  });
+}
+
+// ─── DESTINATIONS ─────────────────────────────────────────────
+function toggleDest(key) {
+  S.destEnabled[key] = !S.destEnabled[key];
+  const toggle = document.getElementById('toggle-' + key);
+  const statusEl = document.getElementById(key + '-status');
+  const card = getDestCard(key);
+
+  toggle.classList.toggle('on', S.destEnabled[key]);
+  if (statusEl) {
+    statusEl.textContent = S.destEnabled[key] ? 'ON' : 'OFF';
+    statusEl.className = 'dest-status-text' + (S.destEnabled[key] ? ' on' : '');
+  }
+  if (card) {
+    card.classList.toggle('connected', S.destEnabled[key]);
+    if (!S.destEnabled[key]) card.classList.remove('streaming');
+  }
+
+  updateActiveDestCount();
+  const names = {yt:'YouTube',tw:'Twitch',fb:'Facebook',tt:'TikTok',ig:'Instagram',xw:'X/Twitter',li:'LinkedIn',cu:'Custom RTMP'};
+  toast('info', S.destEnabled[key] ? '✅' : '⏸', names[key] + ' ' + (S.destEnabled[key] ? 'enabled' : 'disabled'));
+}
+
+function updateActiveDestCount() {
+  const count = Object.values(S.destEnabled).filter(Boolean).length;
+  document.getElementById('gl-active-count').textContent = count + ' destination' + (count !== 1 ? 's' : '') + ' active';
+}
+
+// ─── VIDEO SOURCES ────────────────────────────────────────────
+async function startObsCamera() {
+  try {
+    // Try to get user media (OBS Virtual Camera shows up as a video device)
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(d => d.kind === 'videoinput');
+
+    // Try to find OBS Virtual Camera specifically, else use first camera
+    const obsDevice = videoDevices.find(d =>
+      d.label.toLowerCase().includes('obs') ||
+      d.label.toLowerCase().includes('virtual') ||
+      d.label.toLowerCase().includes('droidcam')
+    );
+
+    const constraints = {
+      video: obsDevice
+        ? { deviceId: { exact: obsDevice.deviceId }, width: 1920, height: 1080, frameRate: 60 }
+        : { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } },
+      audio: false
+    };
+
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    applyVideoStream(stream, obsDevice ? obsDevice.label : videoDevices[0]?.label || 'Camera');
+
+    const label = obsDevice ? 'OBS Virtual Camera' : (videoDevices[0]?.label || 'Webcam');
+    toast('success', '📹', label + ' connected!');
+    setSourceActive('obs');
+    updateQualityBadge();
+  } catch (err) {
+    if (err.name === 'NotFoundError') {
+      toast('warn', '⚠️', 'No camera found. Please connect OBS Virtual Camera or a webcam.');
+    } else if (err.name === 'NotAllowedError') {
+      toast('error', '🔒', 'Camera permission denied. Please allow camera access and try again.');
+    } else {
+      toast('error', '❌', 'Camera error: ' + err.message);
+    }
+  }
+}
+
+async function startWebcam() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } },
+      audio: false
+    });
+    applyVideoStream(stream, 'Webcam');
+    toast('success', '📷', 'Webcam connected!');
+    setSourceActive('webcam');
+  } catch (err) {
+    if (err.name === 'NotAllowedError') {
+      toast('error', '🔒', 'Webcam permission denied.');
+    } else {
+      toast('error', '❌', 'Webcam error: ' + err.message);
+    }
+  }
+}
+
+async function startScreenShare() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } },
+      audio: true
+    });
+    applyVideoStream(stream, 'Screen Share');
+    stream.getVideoTracks()[0].onended = () => {
+      stopCurrentStream();
+      toast('info', '🖥️', 'Screen share ended.');
+    };
+    toast('success', '🖥️', 'Screen sharing started!');
+    setSourceActive('screen');
+  } catch (err) {
+    if (err.name === 'NotAllowedError') {
+      toast('warn', '⚠️', 'Screen share cancelled.');
+    } else {
+      toast('error', '❌', 'Screen share error: ' + err.message);
+    }
+  }
+}
+
+function applyVideoStream(stream, label) {
+  if (S.currentStream) {
+    S.currentStream.getTracks().forEach(t => t.stop());
+  }
+  S.currentStream = stream;
+
+  const video = document.getElementById('main-video');
+  video.srcObject = stream;
+  video.style.display = 'block';
+  document.getElementById('canvas-placeholder').style.display = 'none';
+
+  // Update multiview program preview
+  const progPrev = document.getElementById('mv-program-preview');
+  const progVid = document.createElement('video');
+  progVid.srcObject = stream;
+  progVid.autoplay = true;
+  progVid.muted = true;
+  progVid.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+  progPrev.innerHTML = '';
+  progPrev.appendChild(progVid);
+
+  updateQualityBadge();
+
+  // If has audio, set up monitoring
+  if (stream.getAudioTracks().length > 0) {
+    setupAudioMonitor(stream);
+  }
+}
+
+function stopCurrentStream() {
+  if (S.currentStream) {
+    S.currentStream.getTracks().forEach(t => t.stop());
+    S.currentStream = null;
+  }
+  const video = document.getElementById('main-video');
+  video.srcObject = null;
+  video.style.display = 'none';
+  document.getElementById('canvas-placeholder').style.display = 'flex';
+}
+
+function setSourceActive(type) {
+  ['btn-obs','btn-screen','btn-webcam'].forEach(id => {
+    document.getElementById(id)?.classList.remove('on');
+  });
+  const map = { obs:'btn-obs', screen:'btn-screen', webcam:'btn-webcam' };
+  document.getElementById(map[type])?.classList.add('on');
+}
+
+function openMediaFile() {
+  document.getElementById('media-file-input').click();
+}
+
+function loadMediaFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+  const video = document.getElementById('main-video');
+
+  if (file.type.startsWith('video/')) {
+    video.src = url;
+    video.srcObject = null;
+    video.style.display = 'block';
+    video.loop = true;
+    video.play();
+    document.getElementById('canvas-placeholder').style.display = 'none';
+    toast('success', '🎬', 'Playing: ' + file.name);
+  } else if (file.type.startsWith('image/')) {
+    // Draw image on canvas overlay
+    video.style.display = 'none';
+    document.getElementById('canvas-placeholder').style.display = 'none';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
+    document.getElementById('main-video-container').appendChild(img);
+    toast('success', '🖼️', 'Image loaded: ' + file.name);
+  }
+}
+
+// ─── AUDIO ────────────────────────────────────────────────────
+async function setupAudioMonitor(stream) {
+  try {
+    S.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = S.audioContext.createMediaStreamSource(stream);
+    S.analyser = S.audioContext.createAnalyser();
+    S.analyser.fftSize = 256;
+    source.connect(S.analyser);
+    animateMicMeter();
+  } catch (e) {}
+}
+
+function animateMicMeter() {
+  if (!S.analyser) return;
+  const data = new Uint8Array(S.analyser.frequencyBinCount);
+  S.analyser.getByteFrequencyData(data);
+  const avg = data.reduce((a, b) => a + b, 0) / data.length;
+  const pct = Math.min(100, (avg / 128) * 100 * 2);
+  document.getElementById('mic-meter').style.width = pct + '%';
+  requestAnimationFrame(animateMicMeter);
+}
+
+function startAudioSimulation() {
+  setInterval(() => {
+    if (!S.isLive) {
+      // Idle simulation
+      const m = 8 + Math.random() * 12;
+      const d = 20 + Math.random() * 30;
+      document.getElementById('mic-meter').style.width = (S.micMuted ? 0 : m) + '%';
+      document.getElementById('desk-meter').style.width = (S.audioMuted ? 0 : d) + '%';
+      document.getElementById('master-meter').style.width = (Math.max(m, d) * 0.8) + '%';
+    } else {
+      // Live simulation — more activity
+      const m = 25 + Math.random() * 45;
+      const d = 35 + Math.random() * 40;
+      document.getElementById('mic-meter').style.width = (S.micMuted ? 0 : m) + '%';
+      document.getElementById('desk-meter').style.width = (S.audioMuted ? 0 : d) + '%';
+      document.getElementById('master-meter').style.width = Math.min(100, (Math.max(m, d) * 0.9)) + '%';
+    }
+  }, 100);
+}
+
+function toggleMic() {
+  S.micMuted = !S.micMuted;
+  const btn = document.getElementById('btn-mic');
+  btn.classList.toggle('active', S.micMuted);
+  btn.textContent = S.micMuted ? '🔇' : '🎙️';
+  toast('info', S.micMuted ? '🔇' : '🎙️', 'Microphone ' + (S.micMuted ? 'muted' : 'unmuted'));
+}
+
+function toggleAudio() {
+  S.audioMuted = !S.audioMuted;
+  const btn = document.getElementById('btn-audio');
+  btn.classList.toggle('active', S.audioMuted);
+  btn.textContent = S.audioMuted ? '🔈' : '🔊';
+  toast('info', S.audioMuted ? '🔇' : '🔊', 'Desktop audio ' + (S.audioMuted ? 'muted' : 'unmuted'));
+}
+
+function toggleMicMute() {
+  S.micMuted = !S.micMuted;
+  const btn = document.getElementById('mic-mute-btn');
+  btn.classList.toggle('muted', S.micMuted);
+  btn.textContent = S.micMuted ? '🔇' : '🎙';
+  toggleMic();
+}
+
+function toggleDeskMute() {
+  S.audioMuted = !S.audioMuted;
+  const btn = document.getElementById('desk-mute-btn');
+  btn.classList.toggle('muted', S.audioMuted);
+  btn.textContent = S.audioMuted ? '🔈' : '🔊';
+  toggleAudio();
+}
+
+// ─── RECORDING ────────────────────────────────────────────────
+function toggleRecord() {
+  if (!S.isRecording) {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+}
+
+function startRecording() {
+  if (!S.currentStream && !document.getElementById('main-video').src) {
+    toast('warn', '⚠️', 'No active video source to record.');
+    return;
+  }
+
+  try {
+    const videoEl = document.getElementById('main-video');
+    let stream;
+
+    if (S.currentStream) {
+      stream = S.currentStream;
+    } else {
+      const canvas = document.createElement('canvas');
+      stream = canvas.captureStream(30);
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+      ? 'video/webm;codecs=vp9'
+      : 'video/webm';
+
+    S.recordedChunks = [];
+    S.mediaRecorder = new MediaRecorder(stream, { mimeType });
+    S.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) S.recordedChunks.push(e.data); };
+    S.mediaRecorder.onstop = saveRecording;
+    S.mediaRecorder.start(1000);
+    S.isRecording = true;
+
+    document.getElementById('btn-record').classList.add('active');
+    toast('success', '⏺️', 'Recording started! Will auto-save on stop.');
+  } catch (err) {
+    toast('error', '❌', 'Recording error: ' + err.message);
+  }
+}
+
+function stopRecording() {
+  if (S.mediaRecorder && S.mediaRecorder.state !== 'inactive') {
+    S.mediaRecorder.stop();
+  }
+  S.isRecording = false;
+  document.getElementById('btn-record').classList.remove('active');
+  toast('info', '⏹', 'Recording stopped. Saving file...');
+}
+
+function saveRecording() {
+  const blob = new Blob(S.recordedChunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'streamlive-recording-' + new Date().toISOString().slice(0,19).replace(/:/g,'-') + '.webm';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('success', '💾', 'Recording saved!');
+}
+
+// ─── SNAPSHOT ─────────────────────────────────────────────────
+function takeSnapshot() {
+  const video = document.getElementById('main-video');
+  const canvas = document.getElementById('snapshot-canvas');
+
+  if (!video.srcObject && !video.src) {
+    toast('warn', '⚠️', 'No video source active for snapshot.');
+    return;
+  }
+
+  canvas.width = video.videoWidth || 1920;
+  canvas.height = video.videoHeight || 1080;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'snapshot-' + Date.now() + '.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('success', '📸', 'Snapshot saved!');
+  }, 'image/png');
+}
+
+// ─── OVERLAYS ─────────────────────────────────────────────────
+let overlayCount = 0;
+
+function addOverlay(type) {
+  const container = document.getElementById('canvas-overlays');
+  const id = 'ov-' + (++overlayCount);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'canvas-overlay';
+  wrapper.id = id;
+
+  if (type === 'ticker') {
+    wrapper.className += ' ticker-bar';
+    wrapper.style.cssText = 'position:absolute;bottom:0;left:0;right:0;';
+    wrapper.innerHTML = `<div class="overlay-inner">
+      <div class="ticker-text">🔴 LIVE NOW — Streaming on YouTube · Twitch · Facebook · TikTok &nbsp;&nbsp;&nbsp; 📡 Powered by StreamLive Studio &nbsp;&nbsp;&nbsp; 💬 Join the conversation! &nbsp;&nbsp;&nbsp;</div>
+    </div>
+    <button class="overlay-del" style="position:absolute;top:4px;right:4px;opacity:1;pointer-events:all" onclick="removeOverlay('${id}')">✕</button>`;
+    container.appendChild(wrapper);
+    toast('success', '📰', 'News ticker added. Double-click to edit text.');
+    return;
+  }
+
+  if (type === 'lower') {
+    wrapper.className += ' lower-third';
+    wrapper.innerHTML = `<div class="overlay-inner">
+      <span contenteditable="true" style="outline:none;min-width:100px" ondblclick="this.focus()" spellcheck="false">John Doe — Host</span>
+      <button class="overlay-del" onclick="removeOverlay('${id}')">✕</button>
+    </div>`;
+    container.appendChild(wrapper);
+    toast('success', '▬', 'Lower third added. Double-click text to edit.');
+    return;
+  }
+
+  if (type === 'logo') {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      wrapper.style.cssText = 'position:absolute;top:15px;right:15px;';
+      wrapper.innerHTML = `<img src="${url}" style="max-width:120px;max-height:80px;border-radius:6px;cursor:move;border:1px solid rgba(255,255,255,.2);">
+        <button class="overlay-del" style="position:absolute;top:-6px;right:-6px;opacity:1" onclick="removeOverlay('${id}')">✕</button>`;
+      container.appendChild(wrapper);
+      makeDraggable(wrapper);
+      toast('success', '🖼️', 'Logo overlay added!');
+    };
+    input.click();
+    return;
+  }
+
+  // Default: text overlay
+  const texts = {
+    text: ['📝 Custom Text Overlay', '🎯 Subscribe Now!', '🔔 Hit the bell!', '👋 Welcome viewers!']
+  };
+  const defaultText = texts.text[Math.floor(Math.random() * texts.text.length)];
+
+  wrapper.style.cssText = `position:absolute;top:${60 + Math.random()*120}px;left:${30 + Math.random()*200}px;`;
+  wrapper.innerHTML = `<div class="overlay-inner">
+    <span contenteditable="true" style="outline:none;min-width:60px" spellcheck="false">${defaultText}</span>
+    <button class="overlay-del" onclick="removeOverlay('${id}')">✕</button>
+  </div>`;
+  container.appendChild(wrapper);
+  makeDraggable(wrapper);
+  toast('success', 'T', 'Text overlay added. Double-click to edit.');
+}
+
+function removeOverlay(id) {
+  document.getElementById(id)?.remove();
+  toast('info', '🗑', 'Overlay removed.');
+}
+
+function makeDraggable(el) {
+  let ox = 0, oy = 0, dragging = false;
+  el.onmousedown = (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.contentEditable === 'true') return;
+    dragging = true;
+    ox = e.clientX - el.offsetLeft;
+    oy = e.clientY - el.offsetTop;
+    el.style.zIndex = 999;
+    e.preventDefault();
+  };
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const container = document.getElementById('main-video-container');
+    const rect = container.getBoundingClientRect();
+    const newX = Math.max(0, Math.min(e.clientX - ox, rect.width - el.offsetWidth));
+    const newY = Math.max(0, Math.min(e.clientY - oy, rect.height - el.offsetHeight));
+    el.style.left = newX + 'px';
+    el.style.top = newY + 'px';
+    el.style.bottom = 'auto';
+    el.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; el.style.zIndex = ''; });
+}
+
+// ─── SCENES ───────────────────────────────────────────────────
+function switchScene(tile, name) {
+  document.querySelectorAll('.scene-tile').forEach(t => t.classList.remove('active'));
+  tile.classList.add('active');
+  S.currentScene = name;
+
+  // Apply transition
+  const container = document.getElementById('main-video-container');
+  const trans = S.transition;
+  container.style.transition = '';
+
+  if (trans === 'fade') {
+    container.style.transition = 'opacity .4s ease';
+    container.style.opacity = '0';
+    setTimeout(() => { container.style.opacity = '1'; }, 400);
+  } else if (trans === 'zoom') {
+    container.style.transition = 'transform .3s ease, opacity .3s ease';
+    container.style.transform = 'scale(.95)';
+    container.style.opacity = '0';
+    setTimeout(() => { container.style.transform = ''; container.style.opacity = '1'; }, 300);
+  } else if (trans === 'slide') {
+    container.style.transition = 'transform .35s ease';
+    container.style.transform = 'translateX(-40px)';
+    container.style.opacity = '0';
+    setTimeout(() => { container.style.transform = ''; container.style.opacity = '1'; }, 350);
+  }
+
+  toast('info', '🎬', 'Scene: ' + name);
+  if (S.isLive) addSystemChat('▶ Scene switched to: ' + name);
+}
+
+function addNewScene() {
+  const names = ['Guest View','Cam A','Cam B','B-Roll','Reaction Cam','Interview','Title Screen','Countdown'];
+  const name = names[Math.floor(Math.random() * names.length)] + ' ' + Math.floor(Math.random()*9+1);
+  const icons = ['📸','🎭','🎪','🎞','🎯','💡','⭐','🔮'];
+  const icon = icons[Math.floor(Math.random()*icons.length)];
+
+  const grid = document.getElementById('scenes-grid');
+  const tile = document.createElement('div');
+  tile.className = 'scene-tile';
+  tile.onclick = () => switchScene(tile, name);
+  tile.innerHTML = `<div class="scene-tile-preview">${icon}</div><div class="scene-tile-name">${name}</div>`;
+  grid.appendChild(tile);
+
+  // Also add to multiview
+  const mv = document.getElementById('multiview');
+  const mvBtn = mv.querySelector('.mv-add');
+  const mvTile = document.createElement('div');
+  mvTile.className = 'mv-tile';
+  mvTile.onclick = () => mvSelect(mvTile, name);
+  mvTile.innerHTML = `<div class="mv-preview">${icon}</div><div class="mv-label">${name.toUpperCase()}</div>`;
+  mv.insertBefore(mvTile, mvBtn);
+
+  toast('success', '🎬', 'New scene added: ' + name);
+}
+
+function setTransition(val) {
+  S.transition = val;
+}
+
+// ─── MULTIVIEW ────────────────────────────────────────────────
+function mvSelect(tile, name) {
+  document.querySelectorAll('.mv-tile').forEach(t => {
+    if (!t.classList.contains('live-tile')) t.classList.remove('active');
+  });
+  tile.classList.add('active');
+}
+
+// ─── SOURCES ──────────────────────────────────────────────────
+function selectSource(el, type) {
+  document.querySelectorAll('#sources-list .lp-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+
+  if (type === 'obs-cam') startObsCamera();
+  else if (type === 'screen') startScreenShare();
+  else if (type === 'webcam') startWebcam();
+  else if (type === 'media') openMediaFile();
+}
+
+function addSourceFromModal(name, icon, type) {
+  closeModal('add-source-modal');
+  const list = document.getElementById('sources-list');
+  const bgColors = {
+    'virtual-cam':'rgba(41,121,255,.15)',
+    'display':'rgba(0,230,118,.15)',
+    'video-device':'rgba(255,107,43,.15)',
+    'audio-input':'rgba(255,214,0,.15)',
+    'ndi':'rgba(179,136,255,.15)',
+    'ip-cam':'rgba(255,31,75,.15)',
+    'text-source':'rgba(24,255,255,.15)',
+    'media-source':'rgba(179,136,255,.15)'
+  };
+  const bg = bgColors[type] || 'rgba(41,121,255,.15)';
+  const item = document.createElement('div');
+  item.className = 'lp-item';
+  item.innerHTML = `<div class="lp-item-icon" style="background:${bg}">${icon}</div>
+    <div class="lp-item-info"><div class="lp-item-name">${name}</div><div class="lp-item-sub">${type}</div></div>
+    <div class="lp-status" style="background:var(--yellow)"></div>`;
+  item.onclick = () => selectSource(item, type);
+  list.appendChild(item);
+  toast('success', icon, name + ' source added.');
+
+  // Auto-trigger real capture for known types
+  if (type === 'virtual-cam') startObsCamera();
+  else if (type === 'display') startScreenShare();
+  else if (type === 'video-device') startWebcam();
+}
+
+// ─── FULLSCREEN ────────────────────────────────────────────────
+function toggleFullscreen() {
+  const el = document.getElementById('canvas-wrap');
+  if (!document.fullscreenElement) {
+    el.requestFullscreen().catch(() => {
+      toast('warn', '⚠️', 'Fullscreen not available.');
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// ─── BANDWIDTH TEST ────────────────────────────────────────────
+function runBandwidthTest() {
+  toast('info', '📶', 'Running bandwidth test...');
+  const el = document.getElementById('bw-value');
+  el.style.color = 'var(--yellow)';
+  el.textContent = '...';
+  let step = 0;
+  const stages = [2.1, 8.4, 19.2, 31.5, 44.7, 48.3];
+  const bwInterval = setInterval(() => {
+    if (step < stages.length) {
+      el.textContent = stages[step].toFixed(1);
+      step++;
+    } else {
+      clearInterval(bwInterval);
+      const final = (44 + Math.random() * 8).toFixed(1);
+      el.textContent = final;
+      el.style.color = 'var(--green)';
+      toast('success', '📶', `Upload speed: ${final} Mbps — Excellent for multistreaming!`);
+    }
+  }, 300);
+}
+
+// ─── HEALTH MONITOR ────────────────────────────────────────────
+function startBandwidthMeter() {
+  const el = document.getElementById('bw-value');
+  setInterval(() => {
+    if (S.isLive) {
+      const bw = (5.8 + Math.random() * 0.8).toFixed(1);
+      el.textContent = bw;
+      el.style.color = 'var(--green)';
+    }
+  }, 3000);
+}
+
+function startHealthMonitor() {
+  setInterval(() => {
+    if (S.isLive) {
+      document.getElementById('h-fps').textContent = 59 + Math.floor(Math.random() * 2);
+      document.getElementById('h-bitrate').textContent = (5700 + Math.floor(Math.random() * 600));
+      const cpu = 20 + Math.floor(Math.random() * 25);
+      const cpuEl = document.getElementById('h-cpu');
+      cpuEl.textContent = cpu;
+      cpuEl.className = 'health-val ' + (cpu < 40 ? 'good' : cpu < 70 ? 'warn' : 'bad');
+    }
+  }, 2000);
+}
+
+// ─── QUALITY BADGE ─────────────────────────────────────────────
+function updateQualityBadge() {
+  const res = document.getElementById('pref-res')?.value || '1920x1080';
+  const fps = document.getElementById('pref-fps')?.value || '60';
+  const short = res === '1920x1080' ? '1080p' : res === '1280x720' ? '720p' : '480p';
+  document.getElementById('canvas-quality-badge').textContent = `${short} · ${fps}fps`;
+}
+
+// ─── CHAT ──────────────────────────────────────────────────────
+const PLATFORM_STYLES = {
+  youtube:  { color:'#ff0000', bg:'rgba(255,0,0,.2)',   label:'YT'     },
+  twitch:   { color:'#9147ff', bg:'rgba(145,71,255,.2)',label:'TWITCH' },
+  facebook: { color:'#1877f2', bg:'rgba(24,119,242,.2)',label:'FB'     },
+  tiktok:   { color:'#ff0050', bg:'rgba(255,0,80,.2)',  label:'TIKTOK' },
+  system:   { color:'var(--blue3)', bg:'rgba(41,121,255,.2)', label:'SYS' },
+};
+
+const FAKE_CHAT = [
+  {u:'StreamFan_99',  t:'Fire setup! 🔥',                     p:'youtube'},
+  {u:'TwitchViewer1', t:'Love the quality!',                   p:'twitch'},
+  {u:'FBWatcher',     t:'Joining from Facebook 👍',            p:'facebook'},
+  {u:'TikTokFan',     t:'This is 🔥🔥🔥',                     p:'tiktok'},
+  {u:'ProStreamer22',  t:'What encoder are you using?',         p:'youtube'},
+  {u:'NewFollower',    t:'Just subscribed!',                   p:'twitch'},
+  {u:'DevMode',        t:'How many Mbps upload do you have?',  p:'youtube'},
+  {u:'CasualViewer',  t:'Great stream! Keep it up 🙌',        p:'facebook'},
+  {u:'GamingBro',     t:'Clip that! PogChamp',                p:'twitch'},
+  {u:'TikFan1',       t:'Sending gifts 🎁',                   p:'tiktok'},
+  {u:'StreamNerd',    t:'What microphone is that?',           p:'youtube'},
+  {u:'LoyalFan',      t:'Been watching for 1 hour straight!', p:'twitch'},
+  {u:'NewUser_444',   t:'Hello from Philippines! 🇵🇭',       p:'facebook'},
+  {u:'ContentCreator',t:'Great production value!',            p:'youtube'},
+  {u:'MidnightViewer',t:'This is so clean 😍',               p:'tiktok'},
+];
+
+let chatIdx = 0;
+function scheduleRandomChat() {
+  const fireMsg = () => {
+    if (S.isLive) {
+      const msg = FAKE_CHAT[chatIdx++ % FAKE_CHAT.length];
+      addChatMessage(msg.u, msg.t, msg.p);
+    }
+    const delay = S.isLive ? 1500 + Math.random() * 3000 : 5000;
+    setTimeout(fireMsg, delay);
+  };
+  setTimeout(fireMsg, 4000);
+}
+
+function addChatMessage(user, text, platform) {
+  const messages = document.getElementById('chat-messages');
+  const style = PLATFORM_STYLES[platform] || PLATFORM_STYLES.system;
+
+  // Filter
+  if (S.chatFilter !== 'all' && S.chatFilter !== platform) return;
+
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.dataset.platform = platform;
+  div.innerHTML = `
+    <span class="chat-platform" style="background:${style.bg};color:${style.color}">${style.label}</span>
+    <span class="chat-user" style="color:${style.color}">${escapeHtml(user)}:</span>
+    <span class="chat-text">${escapeHtml(text)}</span>`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+
+  // Limit history
+  while (messages.children.length > 100) messages.removeChild(messages.firstChild);
+
+  // Badge
+  const chatTab = document.querySelector('.rp-tab:nth-child(2)');
+  const isOnChatTab = document.getElementById('rp-chat').style.display === 'flex';
+  if (!isOnChatTab) {
+    S.unreadChat++;
+    const badge = document.getElementById('chat-badge');
+    badge.textContent = S.unreadChat > 99 ? '99+' : S.unreadChat;
+    badge.classList.add('show');
+  }
+}
+
+function addSystemChat(text) {
+  addChatMessage('System', text, 'system');
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addChatMessage('You (Host)', text, 'system');
+  input.value = '';
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChat();
+  }
+}
+
+function filterChat(platform, btn) {
+  S.chatFilter = platform;
+  document.querySelectorAll('.cf-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const messages = document.getElementById('chat-messages');
+  Array.from(messages.children).forEach(msg => {
+    if (platform === 'all' || msg.dataset.platform === platform) {
+      msg.style.display = 'flex';
+    } else {
+      msg.style.display = 'none';
+    }
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── TABS ──────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (tab === 'settings') {
+    openModal('obs-modal');
+  } else if (tab === 'setup') {
+    openModal('obs-modal');
+  }
+}
+
+function switchRpTab(tab, btn) {
+  document.querySelectorAll('.rp-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.getElementById('rp-destinations').style.display = 'none';
+  document.getElementById('rp-chat').style.display = 'none';
+  document.getElementById('rp-analytics').style.display = 'none';
+
+  const el = document.getElementById('rp-' + tab);
+  if (el) el.style.display = tab === 'chat' ? 'flex' : 'flex';
+
+  if (tab === 'chat') {
+    S.unreadChat = 0;
+    document.getElementById('chat-badge').classList.remove('show');
+    const messages = document.getElementById('chat-messages');
+    messages.scrollTop = messages.scrollHeight;
+  }
+  if (tab === 'analytics') {
+    document.getElementById('rp-analytics').style.display = 'flex';
+  }
+  if (tab === 'destinations') {
+    document.getElementById('rp-destinations').style.display = 'flex';
+  }
+}
+
+// ─── MODALS ────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function closeModalOutside(e, id) {
+  if (e.target.id === id) closeModal(id);
+}
+
+function togglePlatformConnect(el, name) {
+  el.classList.toggle('selected');
+  const badge = el.querySelector('.plat-item-badge');
+  const isNowSelected = el.classList.contains('selected');
+  if (isNowSelected) {
+    badge.textContent = 'Connected';
+    badge.className = 'plat-item-badge badge-connected';
+  } else {
+    badge.textContent = 'Disconnected';
+    badge.className = 'plat-item-badge badge-rtmp';
+  }
+}
+
+function saveConnections() {
+  closeModal('connect-modal');
+  toast('success', '✅', 'Platform connections saved!');
+}
+
+function saveObsSettings() {
+  updateQualityBadge();
+  closeModal('obs-modal');
+  toast('success', '✅', 'Stream settings saved!');
+}
+
+// ─── OBS / RTMP ────────────────────────────────────────────────
+let streamKeyRevealed = false;
+function revealStreamKey() {
+  const el = document.getElementById('stream-key-display');
+  streamKeyRevealed = !streamKeyRevealed;
+  el.textContent = streamKeyRevealed ? S.streamKey : 'sl-••••••••-••••-••••-••••-••••••••••••';
+}
+
+function copyStreamKey() {
+  copyText(S.streamKey, 'Stream Key');
+}
+
+function copyOBSSettings() {
+  const text = `# OBS → Settings → Stream
+Service:      Custom RTMP
+Server:       rtmp://ingest.streamlive.io/live
+Stream Key:   ${S.streamKey}
+
+# OBS → Settings → Output
+Encoder:      NVENC H.264 (or x264)
+Bitrate:      6000 Kbps (CBR)
+Keyframe:     2 seconds
+Profile:      high
+Tune:         zerolatency
+
+# OBS → Settings → Video
+Base Res:     1920x1080
+Output Res:   1920x1080
+FPS:          60`;
+  copyText(text, 'OBS Settings');
+}
+
+function copyText(text, label) {
+  navigator.clipboard.writeText(text).then(() => {
+    toast('success', '📋', (label || 'Text') + ' copied to clipboard!');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    toast('success', '📋', (label || 'Text') + ' copied!');
+  });
+}
+
+// ─── TOASTS ────────────────────────────────────────────────────
+function toast(type, icon, msg) {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-msg">${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+
+// ─── KEYBOARD SHORTCUTS ─────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.contentEditable === 'true') return;
+  if (e.key === ' ' && e.ctrlKey) { e.preventDefault(); toggleGoLive(); }
+  if (e.key === 'm') toggleMic();
+  if (e.key === 'v') toggleAudio();
+  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); toggleRecord(); }
+  if (e.key === 's' && e.ctrlKey) { e.preventDefault(); startScreenShare(); }
+  if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
+});
+
+// ─── PREVENT ACCIDENTAL PAGE LEAVE ───────────────────────────
+window.addEventListener('beforeunload', (e) => {
+  if (S.isLive || S.isRecording) {
+    e.preventDefault();
+    e.returnValue = 'You have an active stream or recording. Are you sure you want to leave?';
+  }
+});
+
+// ─── INITIAL CHAT SEEDING ──────────────────────────────────────
+setTimeout(() => {
+  addChatMessage('StreamBot', '👋 Welcome to StreamLive Studio! Connect your camera or screen to get started.', 'system');
+}, 1000);
+
+</script>
+
+</body>
+</html>
